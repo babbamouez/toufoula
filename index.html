@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة مؤسسات الطفولة بالجمهورية</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; }
+        .header-banner { background: linear-gradient(135deg, #0d6efd, #0dcaf0); color: white; padding: 40px 0; text-align: center; border-bottom: 5px solid #0056b3; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        .stat-card { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: transform 0.2s, box-shadow 0.2s; height: 100%; cursor: pointer; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(13,110,253,0.15); border-color: #0d6efd; }
+        .stat-number { color: #ff3366; font-size: 2.2rem; font-weight: bold; margin-bottom: 5px; pointer-events: none; }
+        .stat-label { font-size: 1.1rem; color: #333; font-weight: 500; pointer-events: none; }
+        
+        .stat-card-sm { padding: 12px; }
+        .stat-card-sm .stat-number { font-size: 1.4rem; color: #0d6efd; margin-bottom: 2px; }
+        .stat-card-sm .stat-label { font-size: 0.9rem; font-weight: bold; color: #555; }
+        
+        .institution-card { transition: transform 0.3s ease, box-shadow 0.3s ease; border-radius: 12px; }
+        .institution-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important; }
+        .filter-box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; border-top: 4px solid #0d6efd; }
+        .icon-box { width: 25px; text-align: center; display: inline-block; }
+        .page-item.active .page-link { background-color: #0d6efd; border-color: #0d6efd; }
+        .card-title { color: #0056b3; font-size: 1.15rem; line-height: 1.4; height: 50px; overflow: hidden; }
+        .badge-status { font-size: 0.85rem; padding: 6px 10px; }
+        
+        .results-badge { font-size: 1.2rem; padding: 10px 20px; border-radius: 30px; background-color: #e9ecef; color: #495057; font-weight: bold; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .results-badge .highlight { color: #d63384; font-size: 1.4rem; margin: 0 5px; }
+        
+        #loadingSection { padding: 50px 0; text-align: center; }
+        .spinner-border { width: 3rem; height: 3rem; color: #0d6efd; }
+    </style>
+</head>
+<body>
+
+    <div class="header-banner">
+        <h1 class="fw-bold"><i class="fas fa-child me-2"></i> البوابة التفاعلية لمؤسسات الطفولة</h1>
+        <p class="fs-5 mt-2">ابحث وتصفح المعطيات بكل سهولة</p>
+    </div>
+
+    <div class="container">
+        
+        <!-- قسم التحميل (يظهر عند فتح الموقع) -->
+        <div id="loadingSection">
+            <div class="spinner-border mb-3" role="status"></div>
+            <h4 class="text-primary">جاري تحميل المعطيات، الرجاء الانتظار...</h4>
+            <p class="text-muted mt-2" id="loadingError"></p>
+        </div>
+
+        <!-- قسم الإحصائيات الشاملة -->
+        <div id="statsContainer" class="d-none">
+            
+            <div class="mb-5">
+                <h2 class="text-center fw-bold mb-4" style="color: #0056b3;" id="nationalTitle">مؤسسات الطفولة بالجمهورية التونسية</h2>
+                <p class="text-center text-muted mb-4"><i class="fas fa-hand-pointer me-1"></i> اضغط على أي بطاقة لعرض مؤسساتها في جدول البحث بالأسفل</p>
+                <div class="row g-3 justify-content-center" id="nationalStatsCards"></div>
+            </div>
+
+            <div class="mb-4 bg-white p-4 rounded shadow-sm border">
+                <h4 class="text-center fw-bold mb-4 text-secondary">توزيع مؤسسات الطفولة حسب الولاية</h4>
+                <div class="row g-2 justify-content-center" id="stateStatsCards"></div>
+            </div>
+
+            <div class="mb-5 bg-white p-4 rounded shadow-sm border">
+                <h4 class="text-center fw-bold mb-4 text-secondary">توزيع مؤسسات الطفولة حسب وضعية المؤسسة</h4>
+                <div class="row g-2 justify-content-center" id="statusStatsCards"></div>
+            </div>
+        </div>
+
+        <!-- أدوات البحث والفلترة -->
+        <div class="filter-box d-none" id="filters">
+            <h5 class="mb-3 text-primary"><i class="fas fa-search me-2"></i> محركات البحث المتقدم</h5>
+            <div class="row g-3">
+                <div class="col-md-12 mb-2">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="searchInput" class="form-control" placeholder="ابحث باسم المؤسسة...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">الولاية</label>
+                    <select id="stateFilter" class="form-select"><option value="">الكل</option></select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">المعتمدية</label>
+                    <select id="delegationFilter" class="form-select"><option value="">الكل</option></select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">نوع المؤسسة</label>
+                    <select id="typeFilter" class="form-select"><option value="">الكل</option></select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small">وضعية المؤسسة</label>
+                    <select id="statusFilter" class="form-select"><option value="">الكل</option></select>
+                </div>
+                <div class="col-12 mt-3 text-end">
+                    <button class="btn btn-outline-secondary" onclick="resetFilters()"><i class="fas fa-sync-alt me-1"></i> إعادة ضبط الفلاتر</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم عرض البطاقات -->
+        <div class="row d-none" id="cardsContainer"></div>
+
+        <!-- خيارات العرض وأزرار الملاحة -->
+        <div class="d-flex flex-column align-items-center mt-4 mb-5 d-none" id="paginationContainer">
+            <div class="mb-4 text-center">
+                <div class="results-badge" id="resultsCountDisplay"></div>
+            </div>
+            <div class="mb-3 d-flex align-items-center bg-white p-2 rounded shadow-sm border">
+                <label class="me-3 fw-bold text-secondary mb-0">عرض عدد المؤسسات بالصفحة:</label>
+                <select id="itemsPerPageSelect" class="form-select w-auto font-weight-bold">
+                    <option value="9">9 مؤسسات</option>
+                    <option value="18">18 مؤسسة</option>
+                    <option value="36">36 مؤسسة</option>
+                    <option value="100">100 مؤسسة</option>
+                    <option value="all">عرض الكل</option>
+                </select>
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-lg" id="pagination"></ul>
+            </nav>
+        </div>
+    </div>
+
+    <script>
+        let globalData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        let itemsPerPage = 9; 
+
+        // جلب البيانات آلياً عند تحميل الصفحة
+        window.addEventListener('DOMContentLoaded', () => {
+            fetch('data.xlsx') // اسم ملف الإكسيل
+                .then(response => {
+                    if (!response.ok) throw new Error("لم يتم العثور على الملف");
+                    return response.arrayBuffer();
+                })
+                .then(data => {
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    let allData = [];
+                    workbook.SheetNames.forEach(sheetName => {
+                        const worksheet = workbook.Sheets[sheetName];
+                        const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+                        const validData = json.filter(row => row['الولاية'] || row['نوع المؤسسة']);
+                        allData = allData.concat(validData);
+                    });
+                    
+                    if(allData.length > 0) {
+                        globalData = allData;
+                        filteredData = allData;
+                        
+                        // إخفاء شاشة التحميل وإظهار الموقع
+                        document.getElementById('loadingSection').classList.add('d-none');
+                        document.getElementById('statsContainer').classList.remove('d-none');
+                        document.getElementById('filters').classList.remove('d-none');
+                        document.getElementById('cardsContainer').classList.remove('d-none');
+                        document.getElementById('paginationContainer').classList.remove('d-none');
+                        
+                        renderStats();
+                        populateFilters();
+                        updateItemsPerPage(); 
+                        updateResultsCount();
+                        renderCards();
+                        renderPagination();
+                    } else {
+                        throw new Error("الملف فارغ");
+                    }
+                })
+                .catch(error => {
+                    console.error("خطأ:", error);
+                    document.getElementById('loadingSection').innerHTML = `
+                        <i class="fas fa-exclamation-triangle text-danger fs-1 mb-3"></i>
+                        <h4 class="text-danger">تعذر تحميل المعطيات</h4>
+                        <p class="text-muted">يرجى التأكد من وجود ملف باسم <strong>data.xlsx</strong> في نفس المجلد.</p>
+                        <small>ملاحظة: إذا كنت تفتح الملف مباشرة من حاسوبك، قد يمنع المتصفح قراءة الملفات المحلية لدواعي أمنية. ستعمل الخاصية بنجاح عند رفع الموقع على GitHub Pages.</small>
+                    `;
+                });
+        });
+
+        function updateItemsPerPage() {
+            const perPageVal = document.getElementById('itemsPerPageSelect').value;
+            if (perPageVal === 'all') {
+                itemsPerPage = filteredData.length > 0 ? filteredData.length : 1;
+            } else {
+                itemsPerPage = parseInt(perPageVal);
+            }
+        }
+
+        document.getElementById('itemsPerPageSelect').addEventListener('change', function() {
+            updateItemsPerPage();
+            currentPage = 1; 
+            renderCards();
+            renderPagination();
+        });
+
+        function updateResultsCount() {
+            const display = document.getElementById('resultsCountDisplay');
+            display.innerHTML = `تم العثور على <span class="highlight">${filteredData.length}</span> مؤسسة من إجمالي <span class="highlight">${globalData.length}</span>`;
+        }
+
+        function filterFromCard(filterType, value) {
+            document.getElementById('searchInput').value = "";
+            document.getElementById('stateFilter').value = "";
+            document.getElementById('delegationFilter').innerHTML = '<option value="">الكل</option>';
+            document.getElementById('typeFilter').value = "";
+            document.getElementById('statusFilter').value = "";
+
+            if(filterType === 'type') {
+                document.getElementById('typeFilter').value = value;
+            } else if (filterType === 'state') {
+                document.getElementById('stateFilter').value = value;
+                const filteredByState = globalData.filter(item => item['الولاية'] == value);
+                const relevantDelegations = [...new Set(filteredByState.map(item => item['المعتمدية']).filter(val => val))].sort();
+                relevantDelegations.forEach(opt => document.getElementById('delegationFilter').innerHTML += `<option value="${opt}">${opt}</option>`);
+            } else if (filterType === 'status') {
+                document.getElementById('statusFilter').value = value;
+            }
+
+            applyFilters();
+            document.getElementById('filters').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = "";
+            document.getElementById('stateFilter').value = "";
+            document.getElementById('delegationFilter').innerHTML = '<option value="">الكل</option>';
+            document.getElementById('typeFilter').value = "";
+            document.getElementById('statusFilter').value = "";
+            applyFilters();
+        }
+
+        function renderStats() {
+            const nationalStatsCards = document.getElementById('nationalStatsCards');
+            const stateStatsCards = document.getElementById('stateStatsCards');
+            const statusStatsCards = document.getElementById('statusStatsCards');
+            
+            nationalStatsCards.innerHTML = '';
+            stateStatsCards.innerHTML = '';
+            statusStatsCards.innerHTML = '';
+            
+            const stateCounts = {};
+            const typeCounts = {};
+            const statusCounts = {};
+            let totalInstitutions = globalData.length;
+
+            globalData.forEach(item => {
+                const state = item['الولاية'];
+                const type = item['نوع المؤسسة'];
+                const status = item['وضعية المؤسسة'];
+                
+                if(state && state.trim() !== "") stateCounts[state] = (stateCounts[state] || 0) + 1;
+                if(type && type.trim() !== "") typeCounts[type] = (typeCounts[type] || 0) + 1;
+                if(status && status.trim() !== "") statusCounts[status] = (statusCounts[status] || 0) + 1;
+            });
+
+            document.getElementById('nationalTitle').innerText = `مؤسسات الطفولة بالجمهورية التونسية (${totalInstitutions})`;
+
+            const sortedTypes = Object.keys(typeCounts).sort((a, b) => typeCounts[b] - typeCounts[a]);
+            sortedTypes.forEach(type => {
+                nationalStatsCards.innerHTML += `
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="stat-card" onclick="filterFromCard('type', '${type}')">
+                            <div class="stat-number">${typeCounts[type]}</div>
+                            <div class="stat-label">${type}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const sortedStates = Object.keys(stateCounts).sort();
+            sortedStates.forEach(state => {
+                stateStatsCards.innerHTML += `
+                    <div class="col-4 col-md-3 col-lg-2">
+                        <div class="stat-card stat-card-sm" onclick="filterFromCard('state', '${state}')">
+                            <div class="stat-number">${stateCounts[state]}</div>
+                            <div class="stat-label">${state}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const sortedStatuses = Object.keys(statusCounts).sort((a, b) => statusCounts[b] - statusCounts[a]);
+            sortedStatuses.forEach(status => {
+                statusStatsCards.innerHTML += `
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="stat-card stat-card-sm" onclick="filterFromCard('status', '${status}')">
+                            <div class="stat-number">${statusCounts[status]}</div>
+                            <div class="stat-label">${status}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function getUniqueValues(key) {
+            return [...new Set(globalData.map(item => item[key]).filter(val => val && val.trim() !== ""))].sort();
+        }
+
+        function populateFilters() {
+            const states = getUniqueValues('الولاية');
+            const delegations = getUniqueValues('المعتمدية');
+            const types = getUniqueValues('نوع المؤسسة');
+            const statuses = getUniqueValues('وضعية المؤسسة');
+
+            const populateSelect = (id, options) => {
+                const select = document.getElementById(id);
+                options.forEach(opt => select.innerHTML += `<option value="${opt}">${opt}</option>`);
+            };
+
+            populateSelect('stateFilter', states);
+            populateSelect('delegationFilter', delegations);
+            populateSelect('typeFilter', types);
+            populateSelect('statusFilter', statuses);
+        }
+
+        document.getElementById('stateFilter').addEventListener('change', function() {
+            const selectedState = this.value;
+            const delegationSelect = document.getElementById('delegationFilter');
+            
+            delegationSelect.innerHTML = '<option value="">الكل</option>';
+            
+            let relevantDelegations = [];
+            if(selectedState === "") {
+                relevantDelegations = getUniqueValues('المعتمدية');
+            } else {
+                const filteredByState = globalData.filter(item => item['الولاية'] == selectedState);
+                relevantDelegations = [...new Set(filteredByState.map(item => item['المعتمدية']).filter(val => val))].sort();
+            }
+            
+            relevantDelegations.forEach(opt => delegationSelect.innerHTML += `<option value="${opt}">${opt}</option>`);
+            applyFilters();
+        });
+
+        function renderCards() {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+            
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageItems = filteredData.slice(start, end);
+
+            if (pageItems.length === 0) {
+                container.innerHTML = `<div class="col-12 text-center py-5">
+                                        <i class="fas fa-search-minus text-muted mb-3" style="font-size: 3rem;"></i>
+                                        <h4 class="text-muted">لا توجد مؤسسات تطابق معايير البحث</h4>
+                                       </div>`;
+                return;
+            }
+
+            pageItems.forEach(item => {
+                const name = item['المؤسسة'] || 'بدون اسم';
+                const state = item['الولاية'] || '-';
+                const delegation = item['المعتمدية'] || '-';
+                const type = item['نوع المؤسسة'] || 'غير محدد';
+                const status = item['وضعية المؤسسة'] || 'غير محدد';
+                const phone = item['رقم الهاتف للمؤسسة'] || 'لا يوجد هاتف مدرج';
+                const address = item['عنوان المؤسسة'] || 'لا يوجد عنوان مدرج';
+                
+                let statusColor = 'bg-secondary';
+                if(status.includes('نشيط') || status.includes('مفتوح')) statusColor = 'bg-success';
+                else if(status.includes('مغلق') || status.includes('توقف')) statusColor = 'bg-danger';
+                else if(status.includes('بصدد')) statusColor = 'bg-warning text-dark';
+
+                const cardHTML = `
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm border-0 institution-card">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title fw-bold"><i class="fas fa-building text-primary ms-1"></i> ${name}</h5>
+                                
+                                <div class="mb-3 mt-2">
+                                    <span class="badge bg-info text-dark badge-status me-1 mb-1"><i class="fas fa-tag ms-1"></i>${type}</span>
+                                    <span class="badge ${statusColor} badge-status mb-1"><i class="fas fa-info-circle ms-1"></i>${status}</span>
+                                </div>
+                                
+                                <p class="card-text mb-2 text-secondary">
+                                    <span class="icon-box"><i class="fas fa-map-marker-alt text-danger"></i></span>
+                                    <strong>الموقع:</strong> ${state} - ${delegation}
+                                </p>
+                                
+                                <p class="card-text mb-2 text-secondary" style="font-size: 0.9rem;">
+                                    <span class="icon-box"><i class="fas fa-map text-success"></i></span>
+                                    ${address}
+                                </p>
+                                
+                                <div class="mt-auto pt-3 border-top">
+                                    <p class="card-text mb-0 fw-bold" style="font-size: 0.95rem; color: #495057;">
+                                        <span class="icon-box"><i class="fas fa-phone-alt text-primary"></i></span>
+                                        <span dir="ltr">${phone}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            const paginationUl = document.getElementById('pagination');
+            paginationUl.innerHTML = '';
+
+            if(totalPages <= 1) return;
+
+            paginationUl.innerHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">السابق</a>
+                </li>`;
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationUl.innerHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
+                    </li>`;
+            }
+
+            paginationUl.innerHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">التالي</a>
+                </li>`;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if(page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderCards();
+            renderPagination();
+        }
+
+        function applyFilters() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const stateVal = document.getElementById('stateFilter').value;
+            const delegationVal = document.getElementById('delegationFilter').value;
+            const typeVal = document.getElementById('typeFilter').value;
+            const statusVal = document.getElementById('statusFilter').value;
+
+            filteredData = globalData.filter(item => {
+                const rowText = Object.values(item).join(' ').toLowerCase();
+                const matchSearch = rowText.includes(searchVal);
+                
+                const matchState = stateVal === "" || item['الولاية'] == stateVal;
+                const matchDelegation = delegationVal === "" || item['المعتمدية'] == delegationVal;
+                const matchType = typeVal === "" || item['نوع المؤسسة'] == typeVal;
+                const matchStatus = statusVal === "" || item['وضعية المؤسسة'] == statusVal;
+
+                return matchSearch && matchState && matchDelegation && matchType && matchStatus;
+            });
+
+            updateItemsPerPage(); 
+            updateResultsCount(); 
+            currentPage = 1; 
+            renderCards();
+            renderPagination();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('delegationFilter').addEventListener('change', applyFilters);
+        document.getElementById('typeFilter').addEventListener('change', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+    </script>
+</body>
+</html>
