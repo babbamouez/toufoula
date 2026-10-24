@@ -95,7 +95,7 @@
 
         <div id="mainContent" class="d-none">
 
-            <!-- تاريخ ووقت التحديث الآلي (تم إضافة text-wrap لكي لا يخرج عن الشاشة في الهواتف) -->
+            <!-- تاريخ ووقت التحديث الآلي -->
             <div id="lastUpdateContainer" class="text-center mb-4 d-none px-2">
                 <span class="badge shadow-sm px-3 py-2 text-wrap lh-base" style="background-color: #FFC000; color: #333333; font-size: clamp(0.9rem, 3vw, 1.05rem); border-radius: 30px; border: 2px solid #e6ac00; max-width: 100%;">
                     <i class="fas fa-calendar-check me-2"></i>آخر تحيين للمعطيات: <span id="updateDateValue" class="fw-bold ms-1" style="color: #000;"></span>
@@ -342,8 +342,8 @@
                 nationalStatsCards.innerHTML += `<div class="col-6 col-md-4 col-lg-3"><div class="stat-card" onclick="filterFromCard('type', '${type}')"><div class="stat-number">${typeCounts[type]}</div><div class="stat-label">${type}</div></div></div>`;
             });
 
-            // 2. بطاقات الولايات
-            const sortedStates = Object.keys(stateCounts).sort();
+            // 2. بطاقات الولايات (مرتبة حسب عدد المؤسسات تنازلياً)
+            const sortedStates = Object.keys(stateCounts).sort((a, b) => stateCounts[b] - stateCounts[a]);
             sortedStates.forEach(state => {
                 stateStatsCards.innerHTML += `
                 <div class="col-6 col-md-3 col-lg-2">
