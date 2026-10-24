@@ -14,13 +14,19 @@
         
         body { font-family: 'Tajawal', 'Segoe UI', Tahoma, sans-serif; background-color: #f0f4f8; color: #333; }
         
-        /* تصميم اللافتة (Banner) */
-        .header-banner { 
-            background: url('banner_tunisie_1920x300.jpg') center/cover no-repeat;
-            padding: 100px 0; 
-            text-align: center; border-bottom: 6px solid #ffc107; margin-bottom: 30px; box-shadow: 0 6px 12px rgba(0,0,0,0.15); 
+        /* تصميم اللافتة (Banner) المتجاوب مع الهواتف */
+        .header-banner-container {
+            width: 100%;
+            border-bottom: 6px solid #ffc107;
+            margin-bottom: 30px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            background-color: #fff;
         }
-        .header-banner h1, .header-banner p { display: none; }
+        .header-banner-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
         
         /* شاشة التحميل */
         #loadingSection { padding: 100px 0; text-align: center; }
@@ -72,9 +78,9 @@
 </head>
 <body>
 
-    <div class="header-banner">
-        <h1>مؤسسات الطفولة بالجمهورية التونسية</h1>
-        <p>البوابة التفاعلية لاستكشاف المعطيات الإحصائية والبيانات الجغرافية</p>
+    <!-- قسم اللافتة الجديد (يتقلص ويتمدد مع الشاشة بشكل مثالي) -->
+    <div class="header-banner-container">
+        <img src="banner_tunisie_1920x300.jpg" alt="مؤسسات الطفولة بالجمهورية التونسية" class="img-fluid">
     </div>
 
     <div class="container">
@@ -89,9 +95,9 @@
 
         <div id="mainContent" class="d-none">
 
-            <!-- تاريخ ووقت التحديث الآلي -->
-            <div id="lastUpdateContainer" class="text-center mb-4 d-none">
-                <span class="badge shadow-sm px-4 py-2" style="background-color: #FFC000; color: #333333; font-size: 1.05rem; border-radius: 30px; border: 2px solid #e6ac00;">
+            <!-- تاريخ ووقت التحديث الآلي (تم إضافة text-wrap لكي لا يخرج عن الشاشة في الهواتف) -->
+            <div id="lastUpdateContainer" class="text-center mb-4 d-none px-2">
+                <span class="badge shadow-sm px-3 py-2 text-wrap lh-base" style="background-color: #FFC000; color: #333333; font-size: clamp(0.9rem, 3vw, 1.05rem); border-radius: 30px; border: 2px solid #e6ac00; max-width: 100%;">
                     <i class="fas fa-calendar-check me-2"></i>آخر تحيين للمعطيات: <span id="updateDateValue" class="fw-bold ms-1" style="color: #000;"></span>
                 </span>
             </div>
