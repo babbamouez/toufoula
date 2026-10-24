@@ -89,7 +89,7 @@
 
         <div id="mainContent" class="d-none">
 
-            <!-- تاريخ التحديث الآلي باللون البرتقالي -->
+            <!-- تاريخ ووقت التحديث الآلي -->
             <div id="lastUpdateContainer" class="text-center mb-4 d-none">
                 <span class="badge shadow-sm px-4 py-2" style="background-color: #FFC000; color: #333333; font-size: 1.05rem; border-radius: 30px; border: 2px solid #e6ac00;">
                     <i class="fas fa-calendar-check me-2"></i>آخر تحيين للمعطيات: <span id="updateDateValue" class="fw-bold ms-1" style="color: #000;"></span>
@@ -215,12 +215,20 @@
                 .then(response => {
                     if (!response.ok) throw new Error("الملف غير موجود");
                     
-                    // استخراج تاريخ آخر تعديل للملف لعرضه
+                    // استخراج تاريخ ووقت آخر تعديل للملف لعرضه
                     const lastModified = response.headers.get('Last-Modified');
                     if(lastModified) {
                         const dateObj = new Date(lastModified);
+                        
+                        // تهيئة التاريخ
                         const formattedDate = dateObj.toLocaleDateString('ar-TN', { year: 'numeric', month: 'long', day: 'numeric' });
-                        document.getElementById('updateDateValue').innerText = formattedDate;
+                        
+                        // تهيئة الوقت بصيغة HH:MM
+                        const hours = String(dateObj.getHours()).padStart(2, '0');
+                        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                        
+                        // دمج التاريخ والوقت بالشكل المطلوب
+                        document.getElementById('updateDateValue').innerText = `${formattedDate} على الساعة: ${hours}:${minutes}`;
                         document.getElementById('lastUpdateContainer').classList.remove('d-none');
                     }
 
