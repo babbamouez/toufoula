@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقع الأولياء - مؤسسات الطفولة بالجمهورية التونسية</title>
+    <title>مؤسسات الطفولة بالجمهورية التونسية</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -16,82 +16,95 @@
         
         /* تصميم اللافتة (Banner) */
         .header-banner { 
-            background: url('banner_tunisie_1920x300.jpg') center/cover no-repeat;
+            background: url('banner_tunisie.jpg') center/cover no-repeat;
             padding: 100px 0; 
-            text-align: center; border-bottom: 6px solid #198754; margin-bottom: 40px; box-shadow: 0 6px 12px rgba(0,0,0,0.15); 
+            text-align: center; border-bottom: 6px solid #ffc107; margin-bottom: 30px; box-shadow: 0 6px 12px rgba(0,0,0,0.15); 
         }
         .header-banner h1, .header-banner p { display: none; }
         
+        /* شريط التحديث الآلي */
+        #updateDateBar {
+            background-color: #FFC000;
+            color: #333;
+            padding: 10px;
+            text-align: center;
+            font-weight: 800;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+        }
+
         /* محرك البحث */
-        .search-engine-box { background: #ffffff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 6px solid #198754; border-bottom: 2px solid #e7f1ff; }
-        .search-engine-title { color: #198754; font-weight: 800; margin-bottom: 25px; }
+        .search-engine-box { background: #ffffff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 6px solid #0d6efd; border-bottom: 2px solid #e7f1ff; }
+        .search-engine-title { color: #0d6efd; font-weight: 800; margin-bottom: 25px; }
         .form-select, .form-control { border-radius: 10px; border: 1px solid #ced4da; }
-        .form-select:focus, .form-control:focus { box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25); border-color: #198754; }
+        .form-select:focus, .form-control:focus { box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); }
         
-        /* بطاقات الإحصائيات العامة */
+        /* بطاقات الإحصائيات */
         .stat-card { background: white; border: 1px solid #eaeaea; border-radius: 15px; padding: 25px 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: all 0.3s ease; height: 100%; cursor: pointer; border-bottom: 4px solid transparent; }
-        .stat-card:hover { transform: translateY(-7px); box-shadow: 0 12px 25px rgba(25,135,84,0.15); border-bottom: 4px solid #ffc107; }
-        .stat-number { color: #198754; font-size: 2.4rem; font-weight: 800; margin-bottom: 8px; pointer-events: none; }
+        .stat-card:hover { transform: translateY(-7px); box-shadow: 0 12px 25px rgba(13,110,253,0.15); border-bottom: 4px solid #ffc107; }
+        .stat-number { color: #0d6efd; font-size: 2.4rem; font-weight: 800; margin-bottom: 8px; pointer-events: none; }
         .stat-label { font-size: 1.15rem; color: #495057; font-weight: 700; pointer-events: none; }
         
-        /* تصميم مربعات الولايات المطور */
-        .state-card { background-color: #fdfdfd !important; border: 2px solid #e2e8f0 !important; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.04); transition: all 0.3s ease; cursor: pointer; height: 100%; }
-        .state-card:hover { transform: translateY(-5px); border-color: #dc3545 !important; background-color: #ffffff !important; box-shadow: 0 10px 20px rgba(220,53,69,0.15); }
-        .state-card .stat-number { font-size: 1.6rem; margin-bottom: 5px; color: #dc3545; font-weight: 800; pointer-events: none; }
-        .state-card .stat-label { font-size: 0.95rem; font-weight: 700; color: #444; pointer-events: none; }
+        .stat-card-sm { padding: 15px; border-radius: 12px; }
+        .stat-card-sm .stat-number { font-size: 1.6rem; margin-bottom: 5px; }
+        .stat-card-sm .stat-label { font-size: 0.95rem; font-weight: 700; color: #555; }
         
         /* بطاقات المؤسسات */
-        .institution-card { transition: all 0.3s ease; border-radius: 15px; border: 1px solid #e9ecef; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; }
-        .institution-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; border-color: #198754; }
+        .institution-card { transition: all 0.3s ease; border-radius: 15px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        .institution-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
         .institution-card .card-body { padding: 25px; }
         .icon-box { width: 30px; text-align: center; display: inline-block; }
-        
-        /* تعديل الألوان للأسود لتكون واضحة */
-        .card-title { color: #000000 !important; font-size: 1.3rem; line-height: 1.4; height: 55px; overflow: hidden; font-weight: 800; }
-        .card-address-text { color: #000000 !important; font-weight: 700; font-size: 1rem; }
-        
+        .card-title { color: #0056b3; font-size: 1.25rem; line-height: 1.4; height: 55px; overflow: hidden; font-weight: 700; }
         .badge-status { font-size: 0.9rem; padding: 8px 12px; border-radius: 8px; font-weight: 500; }
         
         /* العداد */
         .results-badge { font-size: 1.3rem; padding: 12px 30px; border-radius: 50px; background: linear-gradient(145deg, #ffffff, #f0f0f0); color: #2b2b2b; font-weight: 700; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid #e0e0e0; }
-        .results-badge .highlight { color: #198754; font-size: 1.6rem; margin: 0 8px; font-weight: 800; }
+        .results-badge .highlight { color: #0d6efd; font-size: 1.6rem; margin: 0 8px; font-weight: 800; }
         
         /* حاويات الرسوم البيانية */
         .chart-container { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; margin-bottom: 30px; }
         .chart-wrapper { position: relative; height: 320px; width: 100%; }
         
-        .section-title { color: #198754; font-weight: 800; margin-bottom: 30px; text-align: center; }
+        .section-title { color: #0056b3; font-weight: 800; margin-bottom: 30px; text-align: center; }
         .section-divider { height: 4px; background: #e9ecef; border-radius: 5px; margin: 60px auto; width: 50%; }
+
+        /* شاشة التحميل */
+        #loadingSection { padding: 80px 0; text-align: center; }
+        .spinner-border { width: 4rem; height: 4rem; color: #0d6efd; }
     </style>
 </head>
 <body>
 
     <div class="header-banner">
-        <h1>مؤسسات الطفولة بالجمهورية التونسية - موقع الأولياء</h1>
-        <p>البوابة التفاعلية لاستكشاف المعطيات الجغرافية والتربوية</p>
+        <h1>مؤسسات الطفولة بالجمهورية التونسية</h1>
+        <p>البوابة التفاعلية لاستكشاف المعطيات الإحصائية والبيانات الجغرافية</p>
     </div>
 
     <div class="container">
-        
-        <!-- قسم رفع الملف -->
-        <div class="row mb-5 justify-content-center" id="uploadSection">
-            <div class="col-md-8 text-center bg-white p-5 rounded-4 shadow border border-success">
-                <i class="fas fa-file-excel text-success mb-4" style="font-size: 5rem;"></i>
-                <h3 class="mb-4 fw-bold text-success">الرجاء إدراج ملف المعطيات للبدء</h3>
-                <input type="file" id="excel-file" class="form-control form-control-lg border-success shadow-sm rounded-3" accept=".xlsx, .xls">
-                <small class="text-muted mt-3 d-block fs-6"><i class="fas fa-info-circle me-1"></i> يرجى اختيار ملف الإكسيل الخاص بمؤسسات الطفولة</small>
-            </div>
+
+        <!-- شاشة التحميل الآلي -->
+        <div id="loadingSection">
+            <div class="spinner-border mb-4" role="status"></div>
+            <h3 class="text-primary fw-bold">جاري تحميل المعطيات، الرجاء الانتظار...</h3>
+            <p class="text-muted mt-2" id="loadingError"></p>
         </div>
 
         <div id="mainContent" class="d-none">
 
-            <!-- 1. محرك البحث المبسط للأولياء -->
+            <!-- شريط تاريخ التحيين -->
+            <div id="updateDateBar">
+                <i class="fas fa-clock me-2"></i> آخر عملية تحيين للموقع: <span id="updateDateText">جاري الجلب...</span>
+            </div>
+
+            <!-- 1. محرك البحث الشامل للأولياء (بدون فلتر الوضعية) -->
             <div class="search-engine-box" id="searchSection">
-                <h4 class="search-engine-title"><i class="fas fa-search me-2"></i> البحث عن مؤسسة طفولة</h4>
-                <div class="row g-4 justify-content-center">
+                <h4 class="search-engine-title"><i class="fas fa-search me-2"></i> محرك البحث المتقدم</h4>
+                <div class="row g-4">
                     <div class="col-md-12">
                         <div class="input-group input-group-lg shadow-sm" style="border-radius: 10px; overflow: hidden;">
-                            <span class="input-group-text bg-success text-white border-0 px-4"><i class="fas fa-search"></i></span>
+                            <span class="input-group-text bg-primary text-white border-0 px-4"><i class="fas fa-search"></i></span>
                             <input type="text" id="searchInput" class="form-control border-0 bg-light" placeholder="اكتب اسم المؤسسة للبحث المباشر...">
                         </div>
                     </div>
@@ -108,7 +121,7 @@
                         <select id="typeFilter" class="form-select bg-light"><option value="">الكل</option></select>
                     </div>
                     <div class="col-12 mt-4 text-end">
-                        <button class="btn btn-outline-success px-4 rounded-pill shadow-sm" onclick="resetFilters()"><i class="fas fa-sync-alt me-2"></i>إعادة ضبط الفلاتر</button>
+                        <button class="btn btn-danger px-4 rounded-pill shadow-sm" onclick="resetFilters()"><i class="fas fa-sync-alt me-2"></i>إعادة ضبط الفلاتر</button>
                     </div>
                 </div>
             </div>
@@ -140,10 +153,10 @@
 
             <div class="section-divider"></div>
 
-            <!-- 2. قسم الإحصائيات -->
+            <!-- 2. قسم الإحصائيات والرسوم البيانية -->
             <div id="statsContainer">
-                <h2 class="section-title" id="nationalTitle">إحصائيات مؤسسات الطفولة</h2>
-                <p class="text-center text-secondary mb-5"><i class="fas fa-hand-pointer text-success me-2"></i>اضغط على أي بطاقة لعرض مؤسساتها في محرك البحث بالأعلى</p>
+                <h2 class="section-title" id="nationalTitle">الإحصائيات العامة للمؤسسات</h2>
+                <p class="text-center text-secondary mb-5"><i class="fas fa-hand-pointer text-primary me-2"></i>اضغط على أي بطاقة لعرض مؤسساتها في محرك البحث بالأعلى</p>
                 
                 <!-- البطاقات الشاملة للأنواع -->
                 <div class="row g-4 justify-content-center mb-5" id="nationalStatsCards"></div>
@@ -152,7 +165,7 @@
                 <div class="row mb-5 justify-content-center">
                     <div class="col-md-6 col-lg-5">
                         <div class="chart-container">
-                            <h5 class="text-center text-success fw-bold mb-4">توزيع المؤسسات حسب النوع</h5>
+                            <h5 class="text-center text-primary fw-bold mb-4">توزيع المؤسسات حسب النوع</h5>
                             <div class="chart-wrapper">
                                 <canvas id="typeChart"></canvas>
                             </div>
@@ -160,11 +173,11 @@
                     </div>
                 </div>
 
-                <!-- إحصائيات الولايات -->
                 <div class="mb-5 bg-white p-5 rounded-4 shadow-sm border border-light">
-                    <h4 class="text-center fw-bold mb-4" style="color: #198754;"><i class="fas fa-map-marked-alt me-2"></i>توزيع مؤسسات الطفولة حسب الولاية</h4>
+                    <h4 class="text-center fw-bold mb-4" style="color: #0056b3;"><i class="fas fa-map-marked-alt me-2"></i>توزيع مؤسسات الطفولة حسب الولاية</h4>
                     <div class="row g-3 justify-content-center" id="stateStatsCards"></div>
                 </div>
+
             </div>
 
         </div>
@@ -175,44 +188,72 @@
         let filteredData = [];
         let currentPage = 1;
         let itemsPerPage = 9; 
-        
         let chartInstType = null;
 
-        document.getElementById('excel-file').addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                
-                let allData = [];
-                workbook.SheetNames.forEach(sheetName => {
-                    const worksheet = workbook.Sheets[sheetName];
-                    const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
-                    const validData = json.filter(row => row['الولاية'] || row['نوع المؤسسة']);
-                    allData = allData.concat(validData);
+        // دالة مساعدة للبحث عن أعمدة الإحداثيات (X و Y) مهما كانت مكتوبة
+        function getCoordinates(item) {
+            let lat = '', lon = '';
+            for (let key in item) {
+                let cleanKey = key.trim().toLowerCase();
+                if (cleanKey === 'x') lat = String(item[key]).trim();
+                if (cleanKey === 'y') lon = String(item[key]).trim();
+            }
+            return { lat, lon };
+        }
+
+        // الجلب الآلي للملف بمجرد فتح الصفحة
+        window.addEventListener('DOMContentLoaded', () => {
+            fetch('data.xlsx')
+                .then(response => {
+                    if (!response.ok) throw new Error("لم يتم العثور على الملف");
+                    
+                    // استخراج تاريخ التعديل وعرضه
+                    const lastModified = response.headers.get('Last-Modified');
+                    const dateBar = document.getElementById('updateDateBar');
+                    if (lastModified) {
+                        const dateObj = new Date(lastModified);
+                        const formattedDate = dateObj.toLocaleDateString('ar-TN', { year: 'numeric', month: 'long', day: 'numeric' }) + " على الساعة " + dateObj.toLocaleTimeString('ar-TN', { hour: '2-digit', minute: '2-digit' });
+                        document.getElementById('updateDateText').innerText = formattedDate;
+                        dateBar.style.display = 'block';
+                    }
+                    
+                    return response.arrayBuffer();
+                })
+                .then(data => {
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    let allData = [];
+                    workbook.SheetNames.forEach(sheetName => {
+                        const worksheet = workbook.Sheets[sheetName];
+                        const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+                        const validData = json.filter(row => row['الولاية'] || row['نوع المؤسسة']);
+                        allData = allData.concat(validData);
+                    });
+                    
+                    if(allData.length > 0) {
+                        globalData = allData;
+                        filteredData = allData;
+                        
+                        document.getElementById('loadingSection').classList.add('d-none');
+                        document.getElementById('mainContent').classList.remove('d-none');
+                        
+                        renderStatsAndCharts();
+                        populateFilters();
+                        updateItemsPerPage(); 
+                        updateResultsCount();
+                        renderCards();
+                        renderPagination();
+                    } else {
+                        throw new Error("الملف فارغ");
+                    }
+                })
+                .catch(error => {
+                    console.error("خطأ:", error);
+                    document.getElementById('loadingSection').innerHTML = `
+                        <i class="fas fa-exclamation-triangle text-danger fs-1 mb-3"></i>
+                        <h4 class="text-danger">تعذر تحميل المعطيات</h4>
+                        <p class="text-muted">يرجى التأكد من وجود ملف باسم <strong>data.xlsx</strong> في نفس المجلد على السيرفر.</p>
+                    `;
                 });
-                
-                if(allData.length > 0) {
-                    globalData = allData;
-                    filteredData = allData;
-                    
-                    document.getElementById('uploadSection').classList.add('d-none');
-                    document.getElementById('mainContent').classList.remove('d-none');
-                    
-                    renderStatsAndCharts();
-                    populateFilters();
-                    updateItemsPerPage(); 
-                    updateResultsCount();
-                    renderCards();
-                    renderPagination();
-                } else {
-                    alert("الملف فارغ أو لا يمكن قراءته.");
-                }
-            };
-            reader.readAsArrayBuffer(file);
         });
 
         function updateItemsPerPage() {
@@ -259,34 +300,26 @@
             const nationalStatsCards = document.getElementById('nationalStatsCards');
             const stateStatsCards = document.getElementById('stateStatsCards');
             
-            nationalStatsCards.innerHTML = ''; stateStatsCards.innerHTML = '';
+            nationalStatsCards.innerHTML = ''; stateStatsCards.innerHTML = ''; 
             
-            const stateCounts = {}; const typeCounts = {};
+            const stateCounts = {}; const typeCounts = {}; 
             
             globalData.forEach(item => {
-                const state = item['الولاية']; const type = item['نوع المؤسسة'];
+                const state = item['الولاية']; const type = item['نوع المؤسسة']; 
                 if(state && state.trim() !== "") stateCounts[state] = (stateCounts[state] || 0) + 1;
                 if(type && type.trim() !== "") typeCounts[type] = (typeCounts[type] || 0) + 1;
             });
 
-            document.getElementById('nationalTitle').innerText = `إحصائيات مؤسسات الطفولة (${globalData.length})`;
+            document.getElementById('nationalTitle').innerText = `الإحصائيات العامة للمؤسسات (${globalData.length})`;
 
-            // 1. بطاقات الأنواع
             const sortedTypes = Object.keys(typeCounts).sort((a, b) => typeCounts[b] - typeCounts[a]);
             sortedTypes.forEach(type => {
                 nationalStatsCards.innerHTML += `<div class="col-6 col-md-4 col-lg-3"><div class="stat-card" onclick="filterFromCard('type', '${type}')"><div class="stat-number">${typeCounts[type]}</div><div class="stat-label">${type}</div></div></div>`;
             });
 
-            // 2. بطاقات الولايات
             const sortedStates = Object.keys(stateCounts).sort();
             sortedStates.forEach(state => {
-                stateStatsCards.innerHTML += `
-                <div class="col-6 col-md-3 col-lg-2">
-                    <div class="state-card" onclick="filterFromCard('state', '${state}')">
-                        <div class="stat-number">${stateCounts[state]}</div>
-                        <div class="stat-label">${state}</div>
-                    </div>
-                </div>`;
+                stateStatsCards.innerHTML += `<div class="col-6 col-md-3 col-lg-2"><div class="stat-card stat-card-sm" style="background-color: #e7f1ff; border: 1px solid #b6d4fe;" onclick="filterFromCard('state', '${state}')"><div class="stat-number text-danger">${stateCounts[state]}</div><div class="stat-label text-dark">${state}</div></div></div>`;
             });
 
             drawCharts(sortedTypes, typeCounts);
@@ -296,7 +329,7 @@
             if(chartInstType) chartInstType.destroy();
 
             const ctxType = document.getElementById('typeChart').getContext('2d');
-            const colorPalette = ['#198754', '#ffc107', '#0d6efd', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#0dcaf0'];
+            const colorPalette = ['#0d6efd', '#ffc107', '#198754', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#0dcaf0'];
 
             chartInstType = new Chart(ctxType, {
                 type: 'doughnut',
@@ -357,28 +390,30 @@
                 const phone = item['رقم الهاتف للمؤسسة'] || 'لا يوجد هاتف مدرج';
                 const address = item['عنوان المؤسسة'] || 'لا يوجد عنوان مدرج';
                 
-                // رابط البحث في خرائط جوجل
-                const mapsQuery = encodeURIComponent(`${name} ${state} ${delegation}`);
-                const mapsLink = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+                // جلب الإحداثيات إن وجدت
+                const coords = getCoordinates(item);
+                let gpsButton = '';
+                if (coords.lat && coords.lon && coords.lat !== "0" && coords.lon !== "0") {
+                    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${coords.lat},${coords.lon}`;
+                    gpsButton = `<a href="${mapsUrl}" target="_blank" class="btn btn-sm btn-outline-success mt-3 w-100 fw-bold"><i class="fas fa-map-marker-alt me-1"></i> الموقع الجغرافي (GPS)</a>`;
+                }
 
                 container.innerHTML += `
                     <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card h-100 institution-card border-0">
                             <div class="card-body d-flex flex-column bg-white">
-                                <!-- تعديل لون العنوان إلى الأسود -->
-                                <h5 class="card-title"><i class="fas fa-building text-success ms-2"></i>${name}</h5>
-                                
+                                <h5 class="card-title"><i class="fas fa-building text-primary ms-2"></i>${name}</h5>
                                 <div class="mb-4 mt-2">
-                                    <span class="badge bg-success text-white badge-status me-1 mb-1"><i class="fas fa-shapes ms-1"></i>${type}</span>
+                                    <span class="badge bg-primary text-white badge-status me-1 mb-1"><i class="fas fa-shapes ms-1"></i>${type}</span>
                                 </div>
+                                <p class="card-text mb-2 text-secondary"><span class="icon-box"><i class="fas fa-map-marker-alt text-danger"></i></span><strong class="text-dark">الموقع:</strong> ${state} - ${delegation}</p>
                                 
-                                <!-- تعديل لون العناوين إلى الأسود الواضح -->
-                                <p class="card-text mb-2 card-address-text"><span class="icon-box"><i class="fas fa-map-marker-alt text-danger"></i></span><strong class="text-dark">الموقع:</strong> ${state} - ${delegation}</p>
-                                <p class="card-text mb-3 card-address-text"><span class="icon-box"><i class="fas fa-map text-success"></i></span>${address}</p>
+                                <!-- التغيير الوحيد: جعل لون العنوان هنا أسود عوض الرمادي مع المحافظة على نفس الحجم -->
+                                <p class="card-text mb-3" style="color: #000000; font-size: 0.9rem;"><span class="icon-box"><i class="fas fa-map text-success"></i></span>${address}</p>
                                 
                                 <div class="mt-auto pt-3 border-top border-light">
-                                    <p class="card-text mb-3 fw-bold" style="font-size: 1.05rem; color: #000000;"><span class="icon-box"><i class="fas fa-phone-alt text-success"></i></span><span dir="ltr">${phone}</span></p>
-                                    <a href="${mapsLink}" target="_blank" class="btn btn-outline-success w-100 fw-bold rounded-pill"><i class="fas fa-map-marked-alt me-2"></i>عرض على الخريطة</a>
+                                    <p class="card-text mb-0 fw-bold" style="font-size: 1.05rem; color: #333;"><span class="icon-box"><i class="fas fa-phone-alt text-primary"></i></span><span dir="ltr">${phone}</span></p>
+                                    ${gpsButton}
                                 </div>
                             </div>
                         </div>
@@ -392,14 +427,14 @@
             paginationUl.innerHTML = '';
             if(totalPages <= 1) return;
 
-            paginationUl.innerHTML += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link text-success fw-bold" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">السابق</a></li>`;
+            paginationUl.innerHTML += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link text-primary fw-bold" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">السابق</a></li>`;
             
             let startPage = Math.max(1, currentPage - 2);
             let endPage = Math.min(totalPages, currentPage + 2);
             for (let i = startPage; i <= endPage; i++) {
-                paginationUl.innerHTML += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link fw-bold ${i === currentPage ? 'bg-success border-success text-white' : 'text-success'}" href="javascript:void(0)" onclick="changePage(${i})">${i}</a></li>`;
+                paginationUl.innerHTML += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link fw-bold" href="javascript:void(0)" onclick="changePage(${i})">${i}</a></li>`;
             }
-            paginationUl.innerHTML += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link text-success fw-bold" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">التالي</a></li>`;
+            paginationUl.innerHTML += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link text-primary fw-bold" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">التالي</a></li>`;
         }
 
         function changePage(page) {
