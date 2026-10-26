@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مؤسسات الطفولة بالجمهورية التونسية</title>
+    <title>مؤسسات الطفولة بالجمهورية التونسية - نسخة الأولياء</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -14,42 +14,41 @@
         
         body { font-family: 'Tajawal', 'Segoe UI', Tahoma, sans-serif; background-color: #f0f4f8; color: #333; }
         
-        /* تصميم اللافتة (Banner) */
-        .header-banner { 
-            background: url('banner_tunisie.jpg') center/cover no-repeat;
-            padding: 100px 0; 
-            text-align: center; border-bottom: 6px solid #ffc107; margin-bottom: 30px; box-shadow: 0 6px 12px rgba(0,0,0,0.15); 
+        /* تصميم اللافتة (Banner) المتجاوب مع الهواتف */
+        .header-banner-container {
+            width: 100%;
+            border-bottom: 6px solid #ffc107;
+            margin-bottom: 30px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            background-color: #fff;
         }
-        .header-banner h1, .header-banner p { display: none; }
+        .header-banner-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
         
-        /* شريط التحديث الآلي */
-        #updateDateBar {
-            background-color: #FFC000;
-            color: #333;
-            padding: 10px;
-            text-align: center;
-            font-weight: 800;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: none;
-        }
-
+        /* شاشة التحميل */
+        #loadingSection { padding: 100px 0; text-align: center; }
+        .spinner-border { width: 4rem; height: 4rem; color: #0d6efd; }
+        
         /* محرك البحث */
         .search-engine-box { background: #ffffff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 6px solid #0d6efd; border-bottom: 2px solid #e7f1ff; }
         .search-engine-title { color: #0d6efd; font-weight: 800; margin-bottom: 25px; }
         .form-select, .form-control { border-radius: 10px; border: 1px solid #ced4da; }
         .form-select:focus, .form-control:focus { box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); }
         
-        /* بطاقات الإحصائيات */
+        /* بطاقات الإحصائيات العامة */
         .stat-card { background: white; border: 1px solid #eaeaea; border-radius: 15px; padding: 25px 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: all 0.3s ease; height: 100%; cursor: pointer; border-bottom: 4px solid transparent; }
         .stat-card:hover { transform: translateY(-7px); box-shadow: 0 12px 25px rgba(13,110,253,0.15); border-bottom: 4px solid #ffc107; }
         .stat-number { color: #0d6efd; font-size: 2.4rem; font-weight: 800; margin-bottom: 8px; pointer-events: none; }
         .stat-label { font-size: 1.15rem; color: #495057; font-weight: 700; pointer-events: none; }
         
-        .stat-card-sm { padding: 15px; border-radius: 12px; }
-        .stat-card-sm .stat-number { font-size: 1.6rem; margin-bottom: 5px; }
-        .stat-card-sm .stat-label { font-size: 0.95rem; font-weight: 700; color: #555; }
+        /* تصميم مربعات الولايات */
+        .state-card { background-color: #f8fbff !important; border: 2px solid #d0e2ff !important; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.04); transition: all 0.3s ease; cursor: pointer; height: 100%; }
+        .state-card:hover { transform: translateY(-5px); border-color: #0d6efd !important; background-color: #ffffff !important; box-shadow: 0 10px 20px rgba(13,110,253,0.15); }
+        .state-card .stat-number { font-size: 1.6rem; margin-bottom: 5px; color: #dc3545; font-weight: 800; pointer-events: none; }
+        .state-card .stat-label { font-size: 0.95rem; font-weight: 700; color: #444; pointer-events: none; }
         
         /* بطاقات المؤسسات */
         .institution-card { transition: all 0.3s ease; border-radius: 15px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; }
@@ -65,40 +64,39 @@
         
         /* حاويات الرسوم البيانية */
         .chart-container { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; margin-bottom: 30px; }
-        .chart-wrapper { position: relative; height: 320px; width: 100%; }
+        .chart-wrapper { position: relative; height: 350px; width: 100%; }
         
         .section-title { color: #0056b3; font-weight: 800; margin-bottom: 30px; text-align: center; }
         .section-divider { height: 4px; background: #e9ecef; border-radius: 5px; margin: 60px auto; width: 50%; }
-
-        /* شاشة التحميل */
-        #loadingSection { padding: 80px 0; text-align: center; }
-        .spinner-border { width: 4rem; height: 4rem; color: #0d6efd; }
     </style>
 </head>
 <body>
 
-    <div class="header-banner">
-        <h1>مؤسسات الطفولة بالجمهورية التونسية</h1>
-        <p>البوابة التفاعلية لاستكشاف المعطيات الإحصائية والبيانات الجغرافية</p>
+    <!-- قسم اللافتة المتجاوبة -->
+    <div class="header-banner-container">
+        <img src="banner_tunisie.jpg" alt="مؤسسات الطفولة بالجمهورية التونسية" class="img-fluid">
     </div>
 
     <div class="container">
-
-        <!-- شاشة التحميل الآلي -->
+        
+        <!-- قسم التحميل الآلي -->
         <div id="loadingSection">
             <div class="spinner-border mb-4" role="status"></div>
-            <h3 class="text-primary fw-bold">جاري تحميل المعطيات، الرجاء الانتظار...</h3>
-            <p class="text-muted mt-2" id="loadingError"></p>
+            <h3 class="fw-bold text-primary">جاري تحميل البيانات...</h3>
+            <p class="text-muted mt-2">الرجاء الانتظار قليلاً ريثما يتم جلب المعطيات.</p>
+            <div id="loadingError" class="text-danger mt-3 d-none"></div>
         </div>
 
         <div id="mainContent" class="d-none">
 
-            <!-- شريط تاريخ التحيين -->
-            <div id="updateDateBar">
-                <i class="fas fa-clock me-2"></i> آخر عملية تحيين للموقع: <span id="updateDateText">جاري الجلب...</span>
+            <!-- تاريخ ووقت التحديث الآلي -->
+            <div id="lastUpdateContainer" class="text-center mb-4 d-none px-2">
+                <span class="badge shadow-sm px-3 py-2 text-wrap lh-base" style="background-color: #FFC000; color: #333333; font-size: clamp(0.9rem, 3vw, 1.05rem); border-radius: 30px; border: 2px solid #e6ac00; max-width: 100%;">
+                    <i class="fas fa-calendar-check me-2"></i>آخر تحيين للمعطيات: <span id="updateDateValue" class="fw-bold ms-1" style="color: #000;"></span>
+                </span>
             </div>
 
-            <!-- 1. محرك البحث الشامل للأولياء (بدون فلتر الوضعية) -->
+            <!-- 1. محرك البحث الشامل -->
             <div class="search-engine-box" id="searchSection">
                 <h4 class="search-engine-title"><i class="fas fa-search me-2"></i> محرك البحث المتقدم</h4>
                 <div class="row g-4">
@@ -108,6 +106,7 @@
                             <input type="text" id="searchInput" class="form-control border-0 bg-light" placeholder="اكتب اسم المؤسسة للبحث المباشر...">
                         </div>
                     </div>
+                    <!-- توسعة الفلاتر المتبقية لتأخذ المساحة كاملة بالتساوي (col-md-4) -->
                     <div class="col-md-4">
                         <label class="form-label text-secondary fw-bold"><i class="fas fa-map me-1"></i> الولاية</label>
                         <select id="stateFilter" class="form-select bg-light"><option value="">الكل</option></select>
@@ -161,9 +160,9 @@
                 <!-- البطاقات الشاملة للأنواع -->
                 <div class="row g-4 justify-content-center mb-5" id="nationalStatsCards"></div>
 
-                <!-- الرسوم البيانية المبسطة -->
+                <!-- الرسوم البيانية المتناغمة (رسم واحد في المنتصف) -->
                 <div class="row mb-5 justify-content-center">
-                    <div class="col-md-6 col-lg-5">
+                    <div class="col-md-8 col-lg-6">
                         <div class="chart-container">
                             <h5 class="text-center text-primary fw-bold mb-4">توزيع المؤسسات حسب النوع</h5>
                             <div class="chart-wrapper">
@@ -173,6 +172,7 @@
                     </div>
                 </div>
 
+                <!-- إحصائيات الولايات -->
                 <div class="mb-5 bg-white p-5 rounded-4 shadow-sm border border-light">
                     <h4 class="text-center fw-bold mb-4" style="color: #0056b3;"><i class="fas fa-map-marked-alt me-2"></i>توزيع مؤسسات الطفولة حسب الولاية</h4>
                     <div class="row g-3 justify-content-center" id="stateStatsCards"></div>
@@ -188,39 +188,31 @@
         let filteredData = [];
         let currentPage = 1;
         let itemsPerPage = 9; 
+        
         let chartInstType = null;
 
-        // دالة مساعدة للبحث عن أعمدة الإحداثيات (X و Y) مهما كانت مكتوبة
-        function getCoordinates(item) {
-            let lat = '', lon = '';
-            for (let key in item) {
-                let cleanKey = key.trim().toLowerCase();
-                if (cleanKey === 'x') lat = String(item[key]).trim();
-                if (cleanKey === 'y') lon = String(item[key]).trim();
-            }
-            return { lat, lon };
-        }
-
-        // الجلب الآلي للملف بمجرد فتح الصفحة
+        // جلب البيانات آلياً من ملف data.xlsx
         window.addEventListener('DOMContentLoaded', () => {
             fetch('data.xlsx')
                 .then(response => {
-                    if (!response.ok) throw new Error("لم يتم العثور على الملف");
+                    if (!response.ok) throw new Error("الملف غير موجود");
                     
-                    // استخراج تاريخ التعديل وعرضه
                     const lastModified = response.headers.get('Last-Modified');
-                    const dateBar = document.getElementById('updateDateBar');
-                    if (lastModified) {
+                    if(lastModified) {
                         const dateObj = new Date(lastModified);
-                        const formattedDate = dateObj.toLocaleDateString('ar-TN', { year: 'numeric', month: 'long', day: 'numeric' }) + " على الساعة " + dateObj.toLocaleTimeString('ar-TN', { hour: '2-digit', minute: '2-digit' });
-                        document.getElementById('updateDateText').innerText = formattedDate;
-                        dateBar.style.display = 'block';
+                        const formattedDate = dateObj.toLocaleDateString('ar-TN', { year: 'numeric', month: 'long', day: 'numeric' });
+                        const hours = String(dateObj.getHours()).padStart(2, '0');
+                        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                        
+                        document.getElementById('updateDateValue').innerText = `${formattedDate} على الساعة: ${hours}:${minutes}`;
+                        document.getElementById('lastUpdateContainer').classList.remove('d-none');
                     }
-                    
+
                     return response.arrayBuffer();
                 })
                 .then(data => {
                     const workbook = XLSX.read(data, {type: 'array'});
+                    
                     let allData = [];
                     workbook.SheetNames.forEach(sheetName => {
                         const worksheet = workbook.Sheets[sheetName];
@@ -248,11 +240,9 @@
                 })
                 .catch(error => {
                     console.error("خطأ:", error);
-                    document.getElementById('loadingSection').innerHTML = `
-                        <i class="fas fa-exclamation-triangle text-danger fs-1 mb-3"></i>
-                        <h4 class="text-danger">تعذر تحميل المعطيات</h4>
-                        <p class="text-muted">يرجى التأكد من وجود ملف باسم <strong>data.xlsx</strong> في نفس المجلد على السيرفر.</p>
-                    `;
+                    const errDiv = document.getElementById('loadingError');
+                    errDiv.innerHTML = '<i class="fas fa-exclamation-triangle fs-4 d-block mb-2"></i>تعذر تحميل ملف <strong>data.xlsx</strong>. <br><small>ملاحظة: هذا الخطأ يظهر عند فتح الملف من حاسوبك مباشرة. سيعمل بنجاح فور رفعه على الإنترنت.</small>';
+                    errDiv.classList.remove('d-none');
                 });
         });
 
@@ -300,26 +290,34 @@
             const nationalStatsCards = document.getElementById('nationalStatsCards');
             const stateStatsCards = document.getElementById('stateStatsCards');
             
-            nationalStatsCards.innerHTML = ''; stateStatsCards.innerHTML = ''; 
+            nationalStatsCards.innerHTML = ''; stateStatsCards.innerHTML = '';
             
-            const stateCounts = {}; const typeCounts = {}; 
+            const stateCounts = {}; const typeCounts = {};
             
             globalData.forEach(item => {
-                const state = item['الولاية']; const type = item['نوع المؤسسة']; 
+                const state = item['الولاية']; const type = item['نوع المؤسسة'];
                 if(state && state.trim() !== "") stateCounts[state] = (stateCounts[state] || 0) + 1;
                 if(type && type.trim() !== "") typeCounts[type] = (typeCounts[type] || 0) + 1;
             });
 
             document.getElementById('nationalTitle').innerText = `الإحصائيات العامة للمؤسسات (${globalData.length})`;
 
+            // 1. بطاقات الأنواع
             const sortedTypes = Object.keys(typeCounts).sort((a, b) => typeCounts[b] - typeCounts[a]);
             sortedTypes.forEach(type => {
                 nationalStatsCards.innerHTML += `<div class="col-6 col-md-4 col-lg-3"><div class="stat-card" onclick="filterFromCard('type', '${type}')"><div class="stat-number">${typeCounts[type]}</div><div class="stat-label">${type}</div></div></div>`;
             });
 
-            const sortedStates = Object.keys(stateCounts).sort();
+            // 2. بطاقات الولايات
+            const sortedStates = Object.keys(stateCounts).sort((a, b) => stateCounts[b] - stateCounts[a]);
             sortedStates.forEach(state => {
-                stateStatsCards.innerHTML += `<div class="col-6 col-md-3 col-lg-2"><div class="stat-card stat-card-sm" style="background-color: #e7f1ff; border: 1px solid #b6d4fe;" onclick="filterFromCard('state', '${state}')"><div class="stat-number text-danger">${stateCounts[state]}</div><div class="stat-label text-dark">${state}</div></div></div>`;
+                stateStatsCards.innerHTML += `
+                <div class="col-6 col-md-3 col-lg-2">
+                    <div class="state-card" onclick="filterFromCard('state', '${state}')">
+                        <div class="stat-number">${stateCounts[state]}</div>
+                        <div class="stat-label">${state}</div>
+                    </div>
+                </div>`;
             });
 
             drawCharts(sortedTypes, typeCounts);
@@ -387,15 +385,45 @@
             pageItems.forEach(item => {
                 const name = item['المؤسسة'] || 'بدون اسم'; const state = item['الولاية'] || '-';
                 const delegation = item['المعتمدية'] || '-'; const type = item['نوع المؤسسة'] || 'غير محدد';
-                const phone = item['رقم الهاتف للمؤسسة'] || 'لا يوجد هاتف مدرج';
+                const status = item['وضعية المؤسسة'] || 'غير محدد'; const phone = item['رقم الهاتف للمؤسسة'] || 'لا يوجد هاتف مدرج';
                 const address = item['عنوان المؤسسة'] || 'لا يوجد عنوان مدرج';
                 
-                // جلب الإحداثيات إن وجدت
-                const coords = getCoordinates(item);
-                let gpsButton = '';
-                if (coords.lat && coords.lon && coords.lat !== "0" && coords.lon !== "0") {
-                    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${coords.lat},${coords.lon}`;
-                    gpsButton = `<a href="${mapsUrl}" target="_blank" class="btn btn-sm btn-outline-success mt-3 w-100 fw-bold"><i class="fas fa-map-marker-alt me-1"></i> الموقع الجغرافي (GPS)</a>`;
+                // البحث المرن عن الإحداثيات
+                let coordX = '';
+                let coordY = '';
+                Object.keys(item).forEach(key => {
+                    const cleanKey = key.trim().toUpperCase();
+                    if (cleanKey === 'X' || cleanKey.includes(' X') || cleanKey.includes('X ')) {
+                        coordX = item[key];
+                    }
+                    if (cleanKey === 'Y' || cleanKey.includes(' Y') || cleanKey.includes('Y ')) {
+                        coordY = item[key];
+                    }
+                });
+
+                let mapBtnHTML = '';
+                if (coordX && coordY && String(coordX).trim() !== '' && String(coordY).trim() !== '') {
+                    const cleanX = String(coordX).trim().replace(',', '.');
+                    const cleanY = String(coordY).trim().replace(',', '.');
+                    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${cleanX},${cleanY}`;
+                    mapBtnHTML = `
+                        <div class="mt-3">
+                            <a href="${mapUrl}" target="_blank" class="btn btn-sm w-100 fw-bold shadow-sm" style="border-radius: 8px; background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;">
+                                <i class="fas fa-map-marked-alt me-2"></i>الموقع الجغرافي (GPS)
+                            </a>
+                        </div>
+                    `;
+                }
+
+                let statusStyle = 'background-color: #6c757d; color: white;';
+                if (status.includes('نقائص')) {
+                    statusStyle = 'background-color: #FFC000; color: #333333;'; 
+                } else if (status.includes('نشاط')) {
+                    statusStyle = 'background-color: #198754; color: white;'; 
+                } else if (status.includes('معاينة')) {
+                    statusStyle = 'background-color: #0dcaf0; color: #212529;'; 
+                } else if (status.includes('غلق') || status.includes('مغلق')) {
+                    statusStyle = 'background-color: #dc3545; color: white;'; 
                 }
 
                 container.innerHTML += `
@@ -405,15 +433,16 @@
                                 <h5 class="card-title"><i class="fas fa-building text-primary ms-2"></i>${name}</h5>
                                 <div class="mb-4 mt-2">
                                     <span class="badge bg-primary text-white badge-status me-1 mb-1"><i class="fas fa-shapes ms-1"></i>${type}</span>
+                                    <span class="badge badge-status mb-1" style="${statusStyle}"><i class="fas fa-info-circle ms-1"></i>${status}</span>
                                 </div>
-                                <p class="card-text mb-2 text-secondary"><span class="icon-box"><i class="fas fa-map-marker-alt text-danger"></i></span><strong class="text-dark">الموقع:</strong> ${state} - ${delegation}</p>
                                 
-                                <!-- التغيير الوحيد: جعل لون العنوان هنا أسود عوض الرمادي مع المحافظة على نفس الحجم -->
-                                <p class="card-text mb-3" style="color: #000000; font-size: 0.9rem;"><span class="icon-box"><i class="fas fa-map text-success"></i></span>${address}</p>
+                                <!-- تم التعديل هنا ليكون لون الخط أسود -->
+                                <p class="card-text mb-2" style="color: #000000;"><span class="icon-box"><i class="fas fa-map-marker-alt text-danger"></i></span><strong style="color: #000000;">الموقع:</strong> ${state} - ${delegation}</p>
+                                <p class="card-text mb-3" style="color: #000000; font-size: 0.95rem;"><span class="icon-box"><i class="fas fa-map text-success"></i></span>${address}</p>
                                 
                                 <div class="mt-auto pt-3 border-top border-light">
                                     <p class="card-text mb-0 fw-bold" style="font-size: 1.05rem; color: #333;"><span class="icon-box"><i class="fas fa-phone-alt text-primary"></i></span><span dir="ltr">${phone}</span></p>
-                                    ${gpsButton}
+                                    ${mapBtnHTML}
                                 </div>
                             </div>
                         </div>
