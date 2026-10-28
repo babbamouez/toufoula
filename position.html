@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تحديد موقعي (GPS)</title>
+    
+    <!-- إعدادات تطبيق الهاتف (PWA) -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f4f8; -webkit-tap-highlight-color: transparent; }
+        .toast { transition: opacity 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+    
+    <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl w-full max-w-md border-t-4 border-blue-600 mb-6 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-blue-700"></div>
+        <h2 class="text-2xl font-bold text-center text-blue-700 mb-6 mt-2">
+            <i class="fas fa-map-marker-alt me-2 text-red-500"></i> تحديد الإحداثيات
+        </h2>
+        
+        <div class="mb-6 text-center">
+            <button id="getLocationBtn" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-2xl w-full transition duration-300 shadow-lg transform hover:-translate-y-1">
+                <i class="fas fa-location-arrow me-2"></i> جلب موقعي الحالي
+            </button>
+            <p id="statusText" class="text-sm text-gray-500 mt-4 h-5 font-medium"></p>
+        </div>
+
+        <!-- إحداثية X (خط العرض - Latitude) في الأعلى -->
+        <div class="mb-5">
+            <label class="block text-gray-700 font-bold mb-2 text-sm">إحداثية X (خط العرض - Latitude)</label>
+            <div class="flex shadow-sm rounded-xl overflow-hidden">
+                <input type="text" id="coordX" readonly class="w-full bg-gray-50 border-y border-r border-gray-200 px-4 py-3 text-left font-mono text-lg outline-none text-blue-800" placeholder="00.000000" dir="ltr">
+                <button onclick="copyToClipboard('coordX', 'X')" class="bg-gray-800 active:bg-gray-900 text-white px-5 py-3 transition duration-200 flex items-center justify-center min-w-[90px]">
+                    <i class="fas fa-copy me-2"></i> نسخ
+                </button>
+            </div>
+        </div>
+
+        <!-- إحداثية Y (خط الطول - Longitude) في الأسفل -->
+        <div class="mb-2">
+            <label class="block text-gray-700 font-bold mb-2 text-sm">إحداثية Y (خط الطول - Longitude)</label>
+            <div class="flex shadow-sm rounded-xl overflow-hidden">
+                <input type="text" id="coordY" readonly class="w-full bg-gray-50 border-y border-r border-gray-200 px-4 py-3 text-left font-mono text-lg outline-none text-blue-800" placeholder="00.000000" dir="ltr">
+                <button onclick="copyToClipboard('coordY', 'Y')" class="bg-gray-800 active:bg-gray-900 text-white px-5 py-3 transition duration-200 flex items-center justify-center min-w-[90px]">
+                    <i class="fas fa-copy me-2"></i> نسخ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center text-gray-600 mt-2">
+        <p class="font-bold text-lg mb-1 text-blue-900">تطبيقة خاصة بمنظومة الطفولة</p>
+        <p class="text-sm font-medium bg-gray-200 inline-block px-3 py-1 rounded-full mt-1">متفقد الطفولة -معز الببّا-</p>
+    </div>
+
+    <div id="toast" class="toast fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-2xl shadow-2xl opacity-0 pointer-events-none z-50 flex items-center text-sm font-medium whitespace-nowrap">
+        <i id="toastIcon" class="fas fa-check-circle me-2 text-green-400"></i>
+        <span id="toastMsg">تم النسخ بنجاح!</span>
+    </div>
+
+    <script>
+        // تفعيل ملف الخدمة لتحويل الصفحة لتطبيقة
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        const coordXInput = document.getElementById('coordX');
+        const coordYInput = document.getElementById('coordY');
+        const statusText = document.getElementById('statusText');
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+        const toastIcon = document.getElementById('toastIcon');
+
+        getLocationBtn.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                showError('متصفحك لا يدعم خاصية تحديد الموقع.');
+                return;
+            }
+
+            statusText.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-500"></i> جاري تحديد الموقع بدقة...';
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const x = position.coords.latitude.toFixed(6); 
+                    const y = position.coords.longitude.toFixed(6); 
+                    
+                    coordXInput.value = x;
+                    coordYInput.value = y;
+                    
+                    statusText.innerHTML = '<span class="text-green-600 font-bold"><i class="fas fa-check-circle"></i> تم تحديد الموقع بنجاح</span>';
+                },
+                (error) => {
+                    let errorMsg = 'حدث خطأ غير معروف.';
+                    if (error.code === 1) errorMsg = 'الرجاء تفعيل خاصية الـ GPS وإعطاء الصلاحية.';
+                    else if (error.code === 2) errorMsg = 'تعذر تحديد الموقع الحالي.';
+                    else if (error.code === 3) errorMsg = 'انتهى وقت الطلب (حاول مجدداً).';
+                    showError(errorMsg);
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        });
+
+        function copyToClipboard(inputId, label) {
+            const inputElement = document.getElementById(inputId);
+            if (!inputElement.value || inputElement.value === "") {
+                showError('لا توجد أرقام لنسخها.');
+                return;
+            }
+            inputElement.select();
+            inputElement.setSelectionRange(0, 99999); 
+            try {
+                navigator.clipboard.writeText(inputElement.value).then(() => {
+                    showToast(`تم نسخ إحداثية ${label} بنجاح!`, 'fa-check-circle');
+                }).catch(err => {
+                    document.execCommand('copy');
+                    showToast(`تم نسخ إحداثية ${label} بنجاح!`, 'fa-check-circle');
+                });
+            } catch(e) {
+                document.execCommand('copy');
+                showToast(`تم نسخ إحداثية ${label} بنجاح!`, 'fa-check-circle');
+            }
+            window.getSelection().removeAllRanges();
+        }
+
+        function showToast(message, iconClass, isError = false) {
+            toastMsg.innerText = message;
+            toastIcon.className = `fas ${iconClass} me-2 ${isError ? 'text-red-400' : 'text-green-400'}`;
+            toast.classList.add('opacity-100', '-translate-y-2');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', '-translate-y-2');
+            }, 2500);
+        }
+
+        function showError(message) {
+            statusText.innerHTML = `<span class="text-red-500 font-bold"><i class="fas fa-exclamation-triangle"></i> ${message}</span>`;
+            showToast(message, 'fa-exclamation-circle', true);
+        }
+    </script>
+</body>
+</html>

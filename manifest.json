@@ -1,0 +1,16 @@
+{
+  "name": "تحديد الإحداثيات",
+  "short_name": "GPS",
+  "description": "تطبيقة لتحديد الإحداثيات الجغرافية X و Y بدقة",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f0f4f8",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
