@@ -16,31 +16,37 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
-        body { font-family: 'Tajawal', sans-serif; background-color: #f0f4f8; -webkit-tap-highlight-color: transparent; }
-        .toast { transition: opacity 0.3s ease-in-out; }
+        body { font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .toast { transition: opacity 0.3s ease-in-out, transform 0.3s ease; }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-4">
+<body class="bg-gradient-to-br from-blue-50 to-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
     
-    <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl w-full max-w-md border-t-4 border-blue-600 mb-6 relative overflow-hidden">
+    <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl w-full max-w-md border-t-4 border-blue-600 mb-6 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-blue-700"></div>
-        <h2 class="text-2xl font-bold text-center text-blue-700 mb-6 mt-2">
-            <i class="fas fa-map-marker-alt me-2 text-red-500"></i> تحديد الإحداثيات
+        
+        <h2 class="text-2xl font-bold text-center text-blue-800 mb-6 mt-2">
+            <i class="fas fa-map-marker-alt me-2 text-red-500 text-3xl align-middle"></i> تحديد الإحداثيات
         </h2>
         
+        <!-- زر تثبيت التطبيقة (ظاهر افتراضياً) -->
+        <button id="installBtn" class="w-full mb-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-2xl transition duration-300 shadow-lg flex items-center justify-center text-lg transform hover:-translate-y-1">
+            <i class="fas fa-download me-2"></i> تثبيت التطبيقة
+        </button>
+
         <div class="mb-6 text-center">
-            <button id="getLocationBtn" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-2xl w-full transition duration-300 shadow-lg transform hover:-translate-y-1">
+            <button id="getLocationBtn" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-2xl w-full transition duration-300 shadow-lg transform hover:-translate-y-1 text-lg">
                 <i class="fas fa-location-arrow me-2"></i> جلب موقعي الحالي
             </button>
-            <p id="statusText" class="text-sm text-gray-500 mt-4 h-5 font-medium"></p>
+            <p id="statusText" class="text-sm text-gray-500 mt-4 h-5 font-bold"></p>
         </div>
 
         <!-- إحداثية X (خط العرض - Latitude) في الأعلى -->
         <div class="mb-5">
             <label class="block text-gray-700 font-bold mb-2 text-sm">إحداثية X (خط العرض - Latitude)</label>
-            <div class="flex shadow-sm rounded-xl overflow-hidden">
-                <input type="text" id="coordX" readonly class="w-full bg-gray-50 border-y border-r border-gray-200 px-4 py-3 text-left font-mono text-lg outline-none text-blue-800" placeholder="00.000000" dir="ltr">
-                <button onclick="copyToClipboard('coordX', 'X')" class="bg-gray-800 active:bg-gray-900 text-white px-5 py-3 transition duration-200 flex items-center justify-center min-w-[90px]">
+            <div class="flex shadow-md rounded-xl overflow-hidden border border-gray-200 bg-gray-50 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all">
+                <input type="text" id="coordX" readonly class="w-full bg-transparent px-4 py-4 text-left font-mono text-2xl font-bold outline-none text-blue-900" placeholder="00.000000" dir="ltr">
+                <button onclick="copyToClipboard('coordX', 'X')" class="bg-gray-800 hover:bg-gray-900 active:bg-black text-white px-6 py-4 transition duration-200 flex items-center justify-center min-w-[100px] text-lg font-bold">
                     <i class="fas fa-copy me-2"></i> نسخ
                 </button>
             </div>
@@ -49,30 +55,67 @@
         <!-- إحداثية Y (خط الطول - Longitude) في الأسفل -->
         <div class="mb-2">
             <label class="block text-gray-700 font-bold mb-2 text-sm">إحداثية Y (خط الطول - Longitude)</label>
-            <div class="flex shadow-sm rounded-xl overflow-hidden">
-                <input type="text" id="coordY" readonly class="w-full bg-gray-50 border-y border-r border-gray-200 px-4 py-3 text-left font-mono text-lg outline-none text-blue-800" placeholder="00.000000" dir="ltr">
-                <button onclick="copyToClipboard('coordY', 'Y')" class="bg-gray-800 active:bg-gray-900 text-white px-5 py-3 transition duration-200 flex items-center justify-center min-w-[90px]">
+            <div class="flex shadow-md rounded-xl overflow-hidden border border-gray-200 bg-gray-50 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all">
+                <input type="text" id="coordY" readonly class="w-full bg-transparent px-4 py-4 text-left font-mono text-2xl font-bold outline-none text-blue-900" placeholder="00.000000" dir="ltr">
+                <button onclick="copyToClipboard('coordY', 'Y')" class="bg-gray-800 hover:bg-gray-900 active:bg-black text-white px-6 py-4 transition duration-200 flex items-center justify-center min-w-[100px] text-lg font-bold">
                     <i class="fas fa-copy me-2"></i> نسخ
                 </button>
             </div>
         </div>
     </div>
 
-    <div class="text-center text-gray-600 mt-2">
-        <p class="font-bold text-lg mb-1 text-blue-900">تطبيقة خاصة بمنظومة الطفولة</p>
-        <p class="text-sm font-medium bg-gray-200 inline-block px-3 py-1 rounded-full mt-1">متفقد الطفولة -معز الببّا-</p>
+    <!-- تذييل الصفحة -->
+    <div class="text-center mt-2">
+        <p class="font-extrabold text-lg mb-1 text-blue-900">تطبيقة خاصة بمنظومة الطفولة</p>
+        <p class="text-sm font-bold bg-white text-gray-700 shadow-sm inline-block px-4 py-1.5 rounded-full mt-1 border border-gray-200">متفقد الطفولة -معز الببّا-</p>
     </div>
 
-    <div id="toast" class="toast fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-2xl shadow-2xl opacity-0 pointer-events-none z-50 flex items-center text-sm font-medium whitespace-nowrap">
-        <i id="toastIcon" class="fas fa-check-circle me-2 text-green-400"></i>
+    <!-- نافذة الإشعارات (Toast) باللون الأخضر -->
+    <div id="toast" class="toast fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3.5 rounded-full shadow-2xl opacity-0 pointer-events-none z-50 flex items-center text-base font-bold whitespace-nowrap border border-green-500">
+        <i id="toastIcon" class="fas fa-check-circle me-2 text-white text-lg"></i>
         <span id="toastMsg">تم النسخ بنجاح!</span>
     </div>
 
     <script>
-        // تفعيل ملف الخدمة لتحويل الصفحة لتطبيقة
+        // تفعيل ملف الخدمة
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
+
+        const installBtn = document.getElementById('installBtn');
+        let deferredPrompt;
+
+        // التحقق مما إذا كانت التطبيقة مثبتة وتعمل كـ PWA
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
+        
+        if (isStandalone) {
+            installBtn.style.display = 'none'; // إخفاء الزر إذا كانت مثبتة
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'flex'; 
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                }
+                deferredPrompt = null;
+            } else {
+                // رسالة توجيهية للأجهزة التي لا تدعم ظهور النافذة آلياً (مثل الآيفون)
+                showToast('الرجاء الضغط على "إضافة للشاشة الرئيسية" (Add to Home Screen) من إعدادات المتصفح.', 'fa-info-circle', true);
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installBtn.style.display = 'none';
+            deferredPrompt = null;
+        });
 
         const getLocationBtn = document.getElementById('getLocationBtn');
         const coordXInput = document.getElementById('coordX');
@@ -88,7 +131,7 @@
                 return;
             }
 
-            statusText.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-500"></i> جاري تحديد الموقع بدقة...';
+            statusText.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-600"></i> جاري تحديد الموقع بدقة...';
             
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -98,7 +141,7 @@
                     coordXInput.value = x;
                     coordYInput.value = y;
                     
-                    statusText.innerHTML = '<span class="text-green-600 font-bold"><i class="fas fa-check-circle"></i> تم تحديد الموقع بنجاح</span>';
+                    statusText.innerHTML = '<span class="text-green-600"><i class="fas fa-check-circle"></i> تم تحديد الموقع بنجاح</span>';
                 },
                 (error) => {
                     let errorMsg = 'حدث خطأ غير معروف.';
@@ -133,18 +176,30 @@
             window.getSelection().removeAllRanges();
         }
 
-        function showToast(message, iconClass, isError = false) {
+        function showToast(message, iconClass, isInfo = false) {
             toastMsg.innerText = message;
-            toastIcon.className = `fas ${iconClass} me-2 ${isError ? 'text-red-400' : 'text-green-400'}`;
+            
+            // تغيير الألوان حسب نوع الرسالة (أخضر للنجاح، أزرق غامق للمعلومات، أحمر للأخطاء)
+            toast.className = `toast fixed bottom-10 left-1/2 transform -translate-x-1/2 text-white px-6 py-3.5 rounded-full shadow-2xl flex items-center text-base font-bold whitespace-nowrap z-50 transition-all duration-300 ${isInfo ? 'bg-blue-800 border-blue-700' : 'bg-green-600 border-green-500'}`;
+            toastIcon.className = `fas ${iconClass} me-2 text-white text-lg`;
+            
             toast.classList.add('opacity-100', '-translate-y-2');
             setTimeout(() => {
                 toast.classList.remove('opacity-100', '-translate-y-2');
-            }, 2500);
+            }, 3500);
         }
 
         function showError(message) {
             statusText.innerHTML = `<span class="text-red-500 font-bold"><i class="fas fa-exclamation-triangle"></i> ${message}</span>`;
-            showToast(message, 'fa-exclamation-circle', true);
+            
+            toastMsg.innerText = message;
+            toast.className = `toast fixed bottom-10 left-1/2 transform -translate-x-1/2 text-white px-6 py-3.5 rounded-full shadow-2xl flex items-center text-base font-bold whitespace-nowrap z-50 transition-all duration-300 bg-red-600 border-red-500`;
+            toastIcon.className = `fas fa-exclamation-circle me-2 text-white text-lg`;
+            
+            toast.classList.add('opacity-100', '-translate-y-2');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', '-translate-y-2');
+            }, 3500);
         }
     </script>
 </body>
