@@ -2,7 +2,7 @@
   "name": "تحديد الإحداثيات",
   "short_name": "GPS",
   "description": "تطبيقة لتحديد الإحداثيات الجغرافية X و Y بدقة",
-  "start_url": "./position.html",
+  "start_url": "./position.html?v=3", 
   "display": "standalone",
   "background_color": "#f0f4f8",
   "theme_color": "#2563eb",
