@@ -29,7 +29,7 @@
             <i class="fas fa-map-marker-alt me-2 text-red-500 text-3xl align-middle"></i> تحديد الإحداثيات
         </h2>
         
-        <!-- زر تثبيت التطبيقة (ظاهر افتراضياً) -->
+        <!-- زر تثبيت التطبيقة (ظاهر دائماً) -->
         <button id="installBtn" class="w-full mb-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-2xl transition duration-300 shadow-lg flex items-center justify-center text-lg transform hover:-translate-y-1">
             <i class="fas fa-download me-2"></i> تثبيت التطبيقة
         </button>
@@ -70,14 +70,14 @@
         <p class="text-sm font-bold bg-white text-gray-700 shadow-sm inline-block px-4 py-1.5 rounded-full mt-1 border border-gray-200">متفقد الطفولة -معز الببّا-</p>
     </div>
 
-    <!-- نافذة الإشعارات (Toast) باللون الأخضر -->
-    <div id="toast" class="toast fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3.5 rounded-full shadow-2xl opacity-0 pointer-events-none z-50 flex items-center text-base font-bold whitespace-nowrap border border-green-500">
-        <i id="toastIcon" class="fas fa-check-circle me-2 text-white text-lg"></i>
-        <span id="toastMsg">تم النسخ بنجاح!</span>
+    <!-- نافذة الإشعارات (Toast) -->
+    <div id="toast" class="toast fixed bottom-8 left-1/2 transform -translate-x-1/2 text-white px-6 py-3.5 rounded-full shadow-2xl opacity-0 pointer-events-none z-50 flex items-center text-base font-bold whitespace-nowrap border">
+        <i id="toastIcon" class="fas me-2 text-white text-lg"></i>
+        <span id="toastMsg"></span>
     </div>
 
     <script>
-        // تفعيل ملف الخدمة
+        // تفعيل ملف الخدمة (Service Worker)
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
@@ -85,36 +85,25 @@
         const installBtn = document.getElementById('installBtn');
         let deferredPrompt;
 
-        // التحقق مما إذا كانت التطبيقة مثبتة وتعمل كـ PWA
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
-        
-        if (isStandalone) {
-            installBtn.style.display = 'none'; // إخفاء الزر إذا كانت مثبتة
-        }
-
+        // اعتراض حدث التثبيت لالتقاط الـ prompt وعرض الزر بوضوح
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.style.display = 'flex'; 
         });
 
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
+                // إظهار نافذة تأكيد التثبيت الأصلية للمتصفح
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
-                    installBtn.style.display = 'none';
+                    showToast('جاري تثبيت التطبيقة على شاشتك...', 'fa-check-circle', false);
                 }
                 deferredPrompt = null;
             } else {
-                // رسالة توجيهية للأجهزة التي لا تدعم ظهور النافذة آلياً (مثل الآيفون)
-                showToast('الرجاء الضغط على "إضافة للشاشة الرئيسية" (Add to Home Screen) من إعدادات المتصفح.', 'fa-info-circle', true);
+                // رسالة توجيهية إذا كانت التطبيقة مثبتة أو المتصفح لا يدعم التثبيت المباشر
+                showToast('التطبيقة مثبتة مسبقاً، أو يتوجب إضافتها يدوياً عبر قائمة المتصفح (Add to Home Screen).', 'fa-info-circle', true);
             }
-        });
-
-        window.addEventListener('appinstalled', () => {
-            installBtn.style.display = 'none';
-            deferredPrompt = null;
         });
 
         const getLocationBtn = document.getElementById('getLocationBtn');
@@ -145,7 +134,7 @@
                 },
                 (error) => {
                     let errorMsg = 'حدث خطأ غير معروف.';
-                    if (error.code === 1) errorMsg = 'الرجاء تفعيل خاصية الـ GPS وإعطاء الصلاحية.';
+                    if (error.code === 1) errorMsg = 'الرجاء تفعيل خاصية الـ GPS وإعطاء الصلاحية للمتصفح.';
                     else if (error.code === 2) errorMsg = 'تعذر تحديد الموقع الحالي.';
                     else if (error.code === 3) errorMsg = 'انتهى وقت الطلب (حاول مجدداً).';
                     showError(errorMsg);
@@ -164,22 +153,23 @@
             inputElement.setSelectionRange(0, 99999); 
             try {
                 navigator.clipboard.writeText(inputElement.value).then(() => {
-                    showToast(`تم نسخ إحداثية ${label} بنجاح!`, 'fa-check-circle');
+                    showToast(`تم نسخ إحداثية ${label} بنجاح!`, 'fa-check-circle', false);
                 }).catch(err => {
                     document.execCommand('copy');
-                    showToast(`تم نسخ إحداثية ${label} بنجاح!`, 'fa-check-circle');
+                    showToast(`تم نسخ إحداثية ${label} بنجاح!`, 'fa-check-circle', false);
                 });
             } catch(e) {
                 document.execCommand('copy');
-                showToast(`تم نسخ إحداثية ${label} بنجاح!`, 'fa-check-circle');
+                showToast(`تم نسخ إحداثية ${label} بنجاح!`, 'fa-check-circle', false);
             }
             window.getSelection().removeAllRanges();
         }
 
+        // دالة لعرض الإشعارات بألوان مختلفة
         function showToast(message, iconClass, isInfo = false) {
             toastMsg.innerText = message;
             
-            // تغيير الألوان حسب نوع الرسالة (أخضر للنجاح، أزرق غامق للمعلومات، أحمر للأخطاء)
+            // تغيير الألوان (أخضر للنجاح، أزرق غامق للمعلومات)
             toast.className = `toast fixed bottom-10 left-1/2 transform -translate-x-1/2 text-white px-6 py-3.5 rounded-full shadow-2xl flex items-center text-base font-bold whitespace-nowrap z-50 transition-all duration-300 ${isInfo ? 'bg-blue-800 border-blue-700' : 'bg-green-600 border-green-500'}`;
             toastIcon.className = `fas ${iconClass} me-2 text-white text-lg`;
             
@@ -189,6 +179,7 @@
             }, 3500);
         }
 
+        // دالة لعرض الأخطاء باللون الأحمر
         function showError(message) {
             statusText.innerHTML = `<span class="text-red-500 font-bold"><i class="fas fa-exclamation-triangle"></i> ${message}</span>`;
             
