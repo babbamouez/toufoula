@@ -26,7 +26,6 @@
         
         /* شاشة التحميل */
         #loadingSection { padding: 100px 0; text-align: center; }
-        .spinner-border { width: 4rem; height: 4rem; color: #0d6efd; }
         
         /* محرك البحث */
         .search-engine-box { background: #ffffff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 6px solid #0d6efd; border-bottom: 2px solid #e7f1ff; }
@@ -82,17 +81,17 @@
 
     <div class="container">
         
-        <!-- قسم التحميل الآلي -->
-        <div id="loadingSection">
-            <div class="spinner-border mb-4" role="status"></div>
+        <!-- قسم التحميل الآلي (يعوض قسم الرفع اليدوي) -->
+        <div id="loadingSection" class="py-5 text-center">
+            <div class="spinner-border mb-4" style="width: 4rem; height: 4rem; color: #0d6efd;" role="status"></div>
             <h3 class="fw-bold text-primary">جاري تحميل البيانات...</h3>
-            <p class="text-muted mt-2">الرجاء الانتظار قليلاً ريثما يتم جلب المعطيات.</p>
-            <div id="loadingError" class="text-danger mt-3 d-none"></div>
+            <p class="text-muted mt-2">الرجاء الانتظار قليلاً ريثما يتم جلب المعطيات آلياً.</p>
+            <div id="loadingError" class="text-danger mt-3 d-none alert alert-danger border-danger mx-auto" style="max-width: 600px;"></div>
         </div>
 
         <div id="mainContent" class="d-none">
 
-            <!-- تاريخ ووقت التحديث المستخرج من الملف المرفوع -->
+            <!-- تاريخ ووقت التحديث المستخرج من الملف -->
             <div id="lastUpdateContainer" class="text-center mb-4 d-none px-2">
                 <span class="badge shadow-sm px-3 py-2 text-wrap lh-base" style="background-color: #FFC000; color: #333333; font-size: clamp(0.9rem, 3vw, 1.05rem); border-radius: 30px; border: 2px solid #e6ac00; max-width: 100%;">
                     <i class="fas fa-calendar-check me-2"></i>آخر تحيين للمعطيات: <span id="updateDateValue" class="fw-bold ms-1" style="color: #000;"></span>
@@ -221,7 +220,7 @@
         let chartInstType = null;
         let chartInstStatus = null;
 
-        // جلب البيانات آلياً من ملف data.xlsx
+        // دالة الجلب الآلي للملف عند تحميل الصفحة
         window.addEventListener('DOMContentLoaded', () => {
             fetch('data.xlsx')
                 .then(response => {
@@ -271,7 +270,7 @@
                 .catch(error => {
                     console.error("خطأ:", error);
                     const errDiv = document.getElementById('loadingError');
-                    errDiv.innerHTML = '<i class="fas fa-exclamation-triangle fs-4 d-block mb-2"></i>تعذر تحميل ملف <strong>data.xlsx</strong>. <br><small>ملاحظة: هذا الخطأ يظهر عند فتح الملف من حاسوبك مباشرة. سيعمل بنجاح فور رفعه على الإنترنت.</small>';
+                    errDiv.innerHTML = '<i class="fas fa-exclamation-triangle fs-4 d-block mb-2"></i>تعذر تحميل ملف <strong>data.xlsx</strong>. تأكد من وجوده في نفس مسار الموقع على الاستضافة.';
                     errDiv.classList.remove('d-none');
                 });
         });
@@ -307,6 +306,8 @@
                 document.getElementById('statusFilter').value = value;
             } else if (filterType === 'delegation') {
                 document.getElementById('delegationFilter').value = value;
+            } else if (filterType === 'promoter') {
+                document.getElementById('promoterFilter').value = value;
             }
 
             applyFilters();
@@ -351,12 +352,13 @@
             const typeVal = document.getElementById('typeFilter').value;
             const delegationVal = document.getElementById('delegationFilter').value;
             const statusVal = document.getElementById('statusFilter').value;
+            const promoterVal = document.getElementById('promoterFilter').value;
             
             const container = document.getElementById('subStatsContainer');
             container.innerHTML = '';
 
             // إخفاء المربع إذا لم يتم اختيار أي فلتر
-            if (stateVal === "" && typeVal === "" && statusVal === "") {
+            if (stateVal === "" && typeVal === "" && statusVal === "" && promoterVal === "") {
                 container.classList.add('d-none');
                 return;
             }
@@ -376,8 +378,9 @@
                 const counts = {};
                 globalData.forEach(item => {
                     const rowText = Object.values(item).join(' ').toLowerCase();
-                    let match = rowText.includes(searchV) && (promV === "" || item['طبيعة الباعث'] == promV);
+                    let match = rowText.includes(searchV);
                     
+                    if (filterToIgnore !== 'promoter') match = match && (promV === "" || item['طبيعة الباعث'] == promV);
                     if (filterToIgnore !== 'state') match = match && (stateV === "" || item['الولاية'] == stateV);
                     if (filterToIgnore !== 'delegation') match = match && (delV === "" || item['المعتمدية'] == delV);
                     if (filterToIgnore !== 'type') match = match && (typeV === "" || item['نوع المؤسسة'] == typeV);
@@ -401,14 +404,17 @@
                 baseLocStatus = `بولاية ${stateVal}`;
             }
 
+            // تحديد اسم الباعث للاستعمال في العناوين
+            let promoterTitlePart = promoterVal !== "" ? ` (باعث: ${promoterVal})` : "";
+
             // 1. عرض أزرار "وضعية المؤسسة" دائماً 
             const statusCounts = getCountsIgnoring('وضعية المؤسسة', 'status');
             let statusTitle = "";
             
             if (typeVal !== "") {
-                statusTitle = `توزيع "${typeVal}" ${baseLocStatus} حسب وضعية المؤسسة`;
+                statusTitle = `توزيع "${typeVal}" ${baseLocStatus}${promoterTitlePart} حسب وضعية المؤسسة`;
             } else {
-                statusTitle = `توزيع مؤسسات الطفولة ${baseLocStatus} حسب وضعية المؤسسة`;
+                statusTitle = `توزيع مؤسسات الطفولة ${baseLocStatus}${promoterTitlePart} حسب وضعية المؤسسة`;
             }
 
             let statusHTML = `<h6 class="fw-bold mb-3 mt-2" style="color: #0056b3;"><i class="fas fa-chart-pie me-2"></i>${statusTitle}</h6><div class="row g-2 justify-content-center mb-4">`;
@@ -442,14 +448,12 @@
             if (stateVal === "") {
                 const stateCounts = getCountsIgnoring('الولاية', 'state');
                 let stateTitle = "";
-                if (typeVal !== "" && statusVal !== "") {
-                    stateTitle = `توزيع "${typeVal}" (حالة: ${statusVal}) حسب الولاية`;
-                } else if (typeVal !== "") {
-                    stateTitle = `توزيع "${typeVal}" حسب الولاية`;
-                } else if (statusVal !== "") {
-                    stateTitle = `توزيع مؤسسات الطفولة بالولايات حسب وضعية المؤسسة`;
+                let statusTitlePart = statusVal !== "" ? ` (حالة: ${statusVal})` : "";
+                
+                if (typeVal !== "") {
+                    stateTitle = `توزيع "${typeVal}"${promoterTitlePart}${statusTitlePart} حسب الولاية`;
                 } else {
-                    stateTitle = `توزيع مؤسسات الطفولة حسب الولاية`;
+                    stateTitle = `توزيع مؤسسات الطفولة بالولايات${promoterTitlePart}${statusTitlePart} حسب وضعية المؤسسة`;
                 }
                 
                 if (stateTitle !== "") {
@@ -484,11 +488,8 @@
 
             const typeCounts = getCountsIgnoring('نوع المؤسسة', 'type');
             let typeTitle = "";
-            if (statusVal !== "") {
-                typeTitle = `توزيع مؤسسات الطفولة ${baseLocType} (حالة: ${statusVal}) حسب نوع المؤسسة`;
-            } else {
-                typeTitle = `توزيع مؤسسات الطفولة ${baseLocType} حسب نوع المؤسسة`;
-            }
+            let statusTitlePart2 = statusVal !== "" ? ` (حالة: ${statusVal})` : "";
+            typeTitle = `توزيع مؤسسات الطفولة ${baseLocType}${promoterTitlePart}${statusTitlePart2} حسب نوع المؤسسة`;
             
             let typeHTML = `<h6 class="fw-bold mb-3 border-top pt-3" style="color: #0056b3;"><i class="fas fa-shapes me-2"></i>${typeTitle}</h6><div class="row g-2 justify-content-center mb-4">`;
             const sortedTypes = Object.keys(typeCounts).sort((a, b) => typeCounts[b] - typeCounts[a]);
@@ -513,15 +514,12 @@
             if (stateVal !== "" && delegationVal === "") {
                 const delCounts = getCountsIgnoring('المعتمدية', 'delegation');
                 let delTitle = "";
+                let statusTitlePart3 = statusVal !== "" ? ` (حالة: ${statusVal})` : "";
                 
-                if (typeVal !== "" && statusVal !== "") {
-                    delTitle = `توزيع "${typeVal}" بولاية ${stateVal} (حالة: ${statusVal}) حسب المعتمدية`;
-                } else if (typeVal !== "") {
-                    delTitle = `توزيع "${typeVal}" بولاية ${stateVal} حسب المعتمدية`;
-                } else if (statusVal !== "") {
-                    delTitle = `توزيع مؤسسات الطفولة بولاية ${stateVal} (حالة: ${statusVal}) حسب المعتمدية`;
+                if (typeVal !== "") {
+                    delTitle = `توزيع "${typeVal}" بولاية ${stateVal}${promoterTitlePart}${statusTitlePart3} حسب المعتمدية`;
                 } else {
-                    delTitle = `توزيع مؤسسات الطفولة بولاية ${stateVal} حسب المعتمدية`;
+                    delTitle = `توزيع مؤسسات الطفولة بولاية ${stateVal}${promoterTitlePart}${statusTitlePart3} حسب المعتمدية`;
                 }
                 
                 let delHTML = `<h6 class="fw-bold mb-3 border-top pt-3" style="color: #0056b3;"><i class="fas fa-map-marker-alt me-2"></i>${delTitle}</h6><div class="row g-2 justify-content-center mb-2">`;
