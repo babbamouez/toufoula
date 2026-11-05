@@ -18,8 +18,9 @@
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
         body { font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; }
         .toast { transition: opacity 0.3s ease-in-out, transform 0.3s ease; }
-        /* إخفاء زر التثبيت إذا كان التطبيق مفتوحاً في وضع standalone */
-        @media all and (display-mode: standalone) {
+        
+        /* إخفاء زر التثبيت في جميع أنماط العرض الخاصة بالتطبيقات المثبتة */
+        @media all and (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
             #installBtn { display: none !important; }
         }
     </style>
@@ -43,6 +44,8 @@
                 <i class="fas fa-location-arrow me-2"></i> جلب موقعي الحالي
             </button>
             <p id="statusText" class="text-sm text-gray-500 mt-4 h-5 font-bold"></p>
+            <!-- عنصر جديد لعرض الدقة -->
+            <p id="accuracyText" class="text-xs text-blue-700 mt-1 font-bold h-4"></p>
         </div>
 
         <!-- إحداثية X (خط العرض - Latitude) -->
@@ -75,7 +78,7 @@
     </div>
 
     <!-- نافذة الإشعارات (Toast) -->
-    <div id="toast" class="toast fixed bottom-8 left-1/2 transform -translate-x-1/2 text-white px-6 py-3.5 rounded-full shadow-2xl opacity-0 pointer-events-none z-50 flex items-center text-base font-bold whitespace-nowrap border">
+    <div id="toast" class="toast fixed bottom-10 left-1/2 transform -translate-x-1/2 text-white px-6 py-3.5 rounded-full shadow-2xl opacity-0 pointer-events-none z-50 flex items-center text-base font-bold whitespace-nowrap border">
         <i id="toastIcon" class="fas me-2 text-white text-lg"></i>
         <span id="toastMsg"></span>
     </div>
@@ -89,8 +92,12 @@
         const installBtn = document.getElementById('installBtn');
         let deferredPrompt;
 
-        // التحقق الإضافي عبر الجافاسكريبت لحالة Standalone
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                             window.matchMedia('(display-mode: fullscreen)').matches || 
+                             window.matchMedia('(display-mode: minimal-ui)').matches || 
+                             window.navigator.standalone || 
+                             document.referrer.includes('android-app://');
+        
         if (isStandalone) {
             installBtn.style.display = 'none';
         }
@@ -123,6 +130,7 @@
         const coordXInput = document.getElementById('coordX');
         const coordYInput = document.getElementById('coordY');
         const statusText = document.getElementById('statusText');
+        const accuracyText = document.getElementById('accuracyText');
         const toast = document.getElementById('toast');
         const toastMsg = document.getElementById('toastMsg');
         const toastIcon = document.getElementById('toastIcon');
@@ -133,18 +141,44 @@
                 return;
             }
 
-            statusText.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-600"></i> جاري تحديد الموقع...';
+            // تنظيف الحقول والرسائل السابقة
+            coordXInput.value = "";
+            coordYInput.value = "";
+            accuracyText.innerHTML = "";
+            statusText.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-600"></i> جاري الاتصال بالأقمار الصناعية...';
             
+            // خيارات متقدمة لفرض دقة عالية وتجاوز الكاش
+            const options = {
+                enableHighAccuracy: true, // إجبار المتصفح على استخدام شريحة الـ GPS
+                timeout: 15000,           // إعطاء مهلة 15 ثانية للبحث بدقة
+                maximumAge: 0             // منع استخدام أي إحداثيات قديمة مخزنة
+            };
+
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     coordXInput.value = position.coords.latitude.toFixed(6); 
                     coordYInput.value = position.coords.longitude.toFixed(6); 
-                    statusText.innerHTML = '<span class="text-green-600"><i class="fas fa-check-circle"></i> تم بنجاح</span>';
+                    
+                    const accuracy = Math.round(position.coords.accuracy);
+                    
+                    statusText.innerHTML = '<span class="text-green-600"><i class="fas fa-check-circle"></i> تم جلب الموقع بنجاح</span>';
+                    
+                    // تلوين نص الدقة حسب الجودة (أخضر للممتاز، برتقالي للمتوسط، أحمر للضعيف)
+                    let accuracyColor = 'text-green-600';
+                    if(accuracy > 20 && accuracy <= 100) accuracyColor = 'text-yellow-600';
+                    else if(accuracy > 100) accuracyColor = 'text-red-500';
+                    
+                    accuracyText.innerHTML = `<span class="${accuracyColor}">معدل الخطأ المحتمل (الدقة): ±${accuracy} متر</span>`;
                 },
                 (error) => {
-                    showError('تعذر تحديد الموقع. الرجاء تفعيل الـ GPS.');
+                    let errorMsg = 'تعذر تحديد الموقع.';
+                    if(error.code === 1) errorMsg = 'الرجاء تفعيل الـ GPS والسماح للمتصفح بالوصول إليه.';
+                    else if(error.code === 3) errorMsg = 'استغرق البحث وقتاً طويلاً. تأكد من وقوفك في مكان مفتوح للحصول على إشارة GPS.';
+                    
+                    showError(errorMsg);
+                    accuracyText.innerHTML = "";
                 },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                options
             );
         });
 
