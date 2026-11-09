@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - الإدارة المركزية</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f4f8; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border-top: 6px solid #d63384; }
+        .login-title { color: #0056b3; font-weight: 800; text-align: center; margin-bottom: 30px; }
+        .form-control { border-radius: 10px; padding: 15px; border: 1px solid #ced4da; }
+        .form-control:focus { box-shadow: 0 0 0 0.25rem rgba(214, 51, 132, 0.25); border-color: #d63384; }
+        .btn-login { background-color: #d63384; color: white; font-weight: bold; border-radius: 10px; padding: 12px; width: 100%; font-size: 1.2rem; transition: all 0.3s; }
+        .btn-login:hover { background-color: #b02a6b; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(214, 51, 132, 0.3); color: white; }
+        .logo-icon { font-size: 4rem; color: #d63384; text-align: center; display: block; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <i class="fas fa-shield-alt logo-icon"></i>
+        <h3 class="login-title">بوابة الإدارة المركزية</h3>
+        
+        <form id="loginForm" onsubmit="event.preventDefault(); proceedToAdmin();">
+            <div class="mb-4">
+                <label class="form-label text-secondary fw-bold"><i class="fas fa-lock me-2"></i>كلمة العبور</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fas fa-key text-muted"></i></span>
+                    <input type="password" id="passwordInput" class="form-control bg-light border-0" placeholder="أدخل كلمة العبور..." required>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-login"><i class="fas fa-sign-in-alt me-2"></i> تسجيل الدخول</button>
+        </form>
+        
+        <p class="text-center text-muted mt-4 mb-0" style="font-size: 0.85rem;">هذه البوابة مخصصة للاستخدام الإداري الموثوق فقط.</p>
+    </div>
+
+    <script>
+        function proceedToAdmin() {
+            const secretKey = document.getElementById('passwordInput').value.trim();
+            if (secretKey === "") return;
+            // توجيه المتصفح إلى الملف الذي يحمل نفس اسم كلمة العبور (مع إضافة .html)
+            window.location.href = secretKey + ".html";
+        }
+    </script>
+</body>
+</html>
