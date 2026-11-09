@@ -280,7 +280,7 @@
 
         // جلب البيانات آلياً للنشر
         window.addEventListener('DOMContentLoaded', () => {
-            fetch('data.xlsx')
+            fetch('data.xls')
                 .then(response => {
                     if (!response.ok) throw new Error("الملف غير موجود");
                     return response.arrayBuffer();
@@ -318,7 +318,7 @@
                 .catch(error => {
                     console.error("خطأ:", error);
                     const errDiv = document.getElementById('loadingError');
-                    errDiv.innerHTML = '<i class="fas fa-exclamation-triangle fs-4 d-block mb-2"></i>تعذر تحميل ملف <strong>data.xlsx</strong>. يرجى التأكد من رفعه على نفس المستودع أو الخادم.';
+                    errDiv.innerHTML = '<i class="fas fa-exclamation-triangle fs-4 d-block mb-2"></i>تعذر تحميل ملف <strong>data.xls</strong>. يرجى التأكد من رفعه على نفس المستودع أو الخادم.';
                     errDiv.classList.remove('d-none');
                 });
         });
