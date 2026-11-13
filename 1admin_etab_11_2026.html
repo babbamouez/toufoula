@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المنظومة الإدارية لمؤسسات الطفولة</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        
+        body { font-family: 'Tajawal', 'Segoe UI', Tahoma, sans-serif; background-color: #f0f4f8; color: #333; }
+        
+        /* شاشة الدخول */
+        #loginSection { background: linear-gradient(135deg, #f0f4f8 0%, #d0e2ff 100%); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; }
+        .login-box { width: 100%; max-width: 420px; border-top: 5px solid #0d6efd; }
+        
+        /* شاشة التحميل */
+        #loadingSection { background: rgba(240, 244, 248, 0.95); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9998; backdrop-filter: blur(5px); }
+
+        .header-banner-container { width: 100%; border-bottom: 6px solid #ffc107; margin-bottom: 30px; box-shadow: 0 6px 12px rgba(0,0,0,0.15); background-color: #fff; }
+        .header-banner-container img { width: 100%; height: auto; display: block; }
+        
+        .search-engine-box { background: #ffffff; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 6px solid #0d6efd; border-bottom: 2px solid #e7f1ff; }
+        .search-engine-title { color: #0d6efd; font-weight: 800; margin-bottom: 25px; }
+        .form-select, .form-control { border-radius: 10px; border: 1px solid #ced4da; }
+        .form-select:focus, .form-control:focus { box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); }
+        select option[disabled] { font-weight: bold; color: #0d6efd; background-color: #e9ecef; }
+        
+        /* بطاقات الإحصائيات العامة */
+        .stat-card { background: white; border: 1px solid #eaeaea; border-radius: 15px; padding: 25px 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: all 0.3s ease; height: 100%; cursor: pointer; border-bottom: 4px solid transparent; }
+        .stat-card:hover { transform: translateY(-7px); box-shadow: 0 12px 25px rgba(13,110,253,0.15); border-bottom: 4px solid #ffc107; }
+        .stat-number { color: #0d6efd; font-size: 2.4rem; font-weight: 800; margin-bottom: 8px; pointer-events: none; }
+        .stat-label { font-size: 1.15rem; color: #495057; font-weight: 700; pointer-events: none; }
+        
+        .state-card, .status-card { border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.04); transition: all 0.3s ease; cursor: pointer; height: 100%; }
+        .state-card { background-color: #f8fbff !important; border: 2px solid #d0e2ff !important; }
+        .state-card:hover { transform: translateY(-5px); border-color: #0d6efd !important; background-color: #ffffff !important; box-shadow: 0 10px 20px rgba(13,110,253,0.15); }
+        .state-card .stat-number { font-size: 1.6rem; margin-bottom: 5px; color: #dc3545; font-weight: 800; pointer-events: none; }
+        .state-card .stat-label { font-size: 0.95rem; font-weight: 700; color: #444; pointer-events: none; }
+        
+        .status-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); filter: brightness(1.05); }
+        .status-card .stat-number { font-size: 1.6rem; margin-bottom: 5px; font-weight: 800; pointer-events: none; }
+        .status-card .stat-label { font-size: 0.95rem; font-weight: 700; pointer-events: none; }
+
+        .drilldown-card { cursor: pointer; transition: all 0.3s ease; }
+        .drilldown-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(13, 110, 253, 0.2) !important; border-color: #0d6efd !important; }
+        .drilldown-card.active { box-shadow: 0 0 0 3px #0d6efd, 0 8px 15px rgba(13, 110, 253, 0.2) !important; transform: scale(1.03); border-color: #0d6efd !important; z-index: 2; }
+        
+        /* بطاقات المؤسسات */
+        .institution-card { transition: all 0.3s ease; border-radius: 15px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        .institution-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
+        .institution-card .card-body { padding: 25px; }
+        .icon-box { width: 30px; text-align: center; display: inline-block; }
+        .card-title { color: #0056b3; font-size: 1.25rem; line-height: 1.4; height: 55px; overflow: hidden; font-weight: 700; }
+        .badge-status { font-size: 0.85rem; padding: 8px 12px; border-radius: 8px; font-weight: 500; display: inline-block;}
+        
+        .badge-children { font-size: 0.85rem; padding: 8px 12px; border-radius: 8px; font-weight: 700; display: inline-block; background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+        .badge-overcapacity { background-color: #fef2f2 !important; color: #dc2626 !important; border: 1px solid #fecaca !important; }
+        .badge-no-capacity { background-color: #fff7ed !important; color: #ea580c !important; border: 1px solid #fed7aa !important; }
+        
+        .results-badge { font-size: 1.3rem; padding: 12px 30px; border-radius: 50px; background: linear-gradient(145deg, #ffffff, #f0f0f0); color: #2b2b2b; font-weight: 700; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid #e0e0e0; margin-bottom: 0; line-height: 1.8; }
+        .results-badge .highlight { color: #0d6efd; font-size: 1.6rem; margin: 0 8px; font-weight: 800; }
+        .results-badge .highlight-children { color: #d63384; font-size: 1.6rem; margin: 0 8px; font-weight: 800; }
+        
+        .chart-container { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; margin-bottom: 30px; }
+        .chart-wrapper { position: relative; height: 320px; width: 100%; }
+        
+        .section-title { color: #0056b3; font-weight: 800; margin-bottom: 30px; text-align: center; }
+        .section-divider { height: 4px; background: #e9ecef; border-radius: 5px; margin: 60px auto; width: 50%; }
+
+        #mapModal .modal-body, #chartsModal .modal-body { padding: 0; position: relative; }
+        #interactiveMap { height: 70vh; width: 100%; z-index: 1045; }
+        .leaflet-container { font-family: 'Tajawal', sans-serif; }
+        
+        .btn-map-hover { transition: background-color 0.3s ease; }
+        .btn-map-hover:hover { background-color: #146c43 !important; }
+        .btn-pink { background-color: #d63384; border-color: #d63384; color: white; transition: all 0.3s ease; }
+        .btn-pink:hover { background-color: #b02a6b; border-color: #b02a6b; color: white; box-shadow: 0 4px 10px rgba(214, 51, 132, 0.3); }
+        .btn-indigo { background-color: #6610f2; border-color: #6610f2; color: white; transition: all 0.3s ease; }
+        .btn-indigo:hover { background-color: #520dc2; border-color: #520dc2; color: white; box-shadow: 0 4px 10px rgba(102, 16, 242, 0.3); }
+    </style>
+</head>
+<body>
+
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginSection" class="d-flex align-items-center justify-content-center">
+        <div class="bg-white p-5 rounded-4 shadow-lg text-center login-box">
+            <div class="mb-4">
+                <i class="fas fa-shield-alt text-primary" style="font-size: 4rem;"></i>
+            </div>
+            <h4 class="fw-bold mb-4 text-primary">بوابة الإدارة المركزية والجهوية</h4>
+            <div class="mb-3 text-start">
+                <label class="form-label fw-bold text-secondary">اسم المستخدم</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-secondary"></i></span>
+                    <input type="text" id="usernameInput" class="form-control form-control-lg bg-light border-start-0" placeholder="Username">
+                </div>
+            </div>
+            <div class="mb-4 text-start">
+                <label class="form-label fw-bold text-secondary">كلمة العبور</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-secondary"></i></span>
+                    <input type="password" id="passwordInput" class="form-control form-control-lg bg-light border-start-0" placeholder="Password">
+                </div>
+            </div>
+            <button class="btn btn-primary btn-lg w-100 fw-bold rounded-pill shadow-sm" onclick="attemptLogin()">
+                <i class="fas fa-sign-in-alt me-2"></i>تسجيل الدخول
+            </button>
+            <p class="text-danger mt-3 d-none fw-bold" id="loginError"><i class="fas fa-exclamation-circle me-1"></i>اسم المستخدم أو كلمة العبور خاطئة!</p>
+        </div>
+    </div>
+
+    <!-- شاشة جلب وتحليل البيانات -->
+    <div id="loadingSection" class="d-none flex-column align-items-center justify-content-center">
+        <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem; border-width: 5px;"></div>
+        <h4 class="mt-4 fw-bold text-primary">جاري جلب المعطيات من السيرفر وتحليلها...</h4>
+        <p class="text-secondary fw-bold" id="loadingStateMsg">يرجى الانتظار</p>
+    </div>
+
+    <div id="mainContent" class="d-none">
+        
+        <div class="header-banner-container">
+            <img src="banner_tunisie.jpg" alt="مؤسسات الطفولة بالجمهورية التونسية" class="img-fluid">
+        </div>
+
+        <div class="container">
+            <!-- مؤشر آخر تحيين -->
+            <div id="lastUpdateContainer" class="text-center mb-4 d-none px-2">
+                <span class="badge shadow-sm px-3 py-2 text-wrap lh-base" style="background-color: #FFC000; color: #333333; font-size: clamp(0.9rem, 3vw, 1.05rem); border-radius: 30px; border: 2px solid #e6ac00; max-width: 100%;">
+                    <i class="fas fa-calendar-check me-2"></i>آخر تحيين للمعطيات: <span id="updateDateValue" class="fw-bold ms-1" style="color: #000;"></span>
+                </span>
+            </div>
+
+            <!-- محرك البحث الشامل -->
+            <div class="search-engine-box" id="searchSection">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="search-engine-title mb-0"><i class="fas fa-search me-2"></i> محرك البحث والفلترة</h4>
+                    <span class="badge bg-success px-3 py-2 rounded-pill fs-6" id="userBadge"><i class="fas fa-user-circle me-1"></i></span>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="input-group input-group-lg shadow-sm" style="border-radius: 10px; overflow: hidden;">
+                            <span class="input-group-text bg-primary text-white border-0 px-4"><i class="fas fa-search"></i></span>
+                            <input type="text" id="searchInput" class="form-control border-0 bg-light" placeholder="اكتب اسم المؤسسة للبحث المباشر...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- السطر الأول للفلاتر -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label text-secondary fw-bold"><i class="fas fa-map me-1"></i> الولاية</label>
+                        <select id="stateFilter" class="form-select bg-light"><option value="">الكل</option></select>
+                    </div>
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label text-secondary fw-bold"><i class="fas fa-map-pin me-1"></i> المعتمدية</label>
+                        <select id="delegationFilter" class="form-select bg-light"><option value="">الكل</option></select>
+                    </div>
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label text-secondary fw-bold"><i class="fas fa-shapes me-1"></i> نوع المؤسسة</label>
+                        <select id="typeFilter" class="form-select bg-light"><option value="">الكل</option></select>
+                    </div>
+                    <div class="col-md-6 col-lg">
+                        <label class="form-label text-secondary fw-bold"><i class="fas fa-info-circle me-1"></i> وضعية المؤسسة</label>
+                        <select id="statusFilter" class="form-select bg-light"><option value="">الكل</option></select>
+                    </div>
+                    <div class="col-md-6 col-lg">
+                        <label class="form-label text-secondary fw-bold"><i class="fas fa-user-tie me-1"></i> طبيعة الباعث</label>
+                        <select id="promoterFilter" class="form-select bg-light"><option value="">الكل</option></select>
+                    </div>
+                </div>
+
+                <!-- السطر الثاني للفلاتر -->
+                <div class="row g-3 mb-2">
+                    <div class="col-md-6 col-lg-3">
+                        <label class="form-label text-secondary fw-bold"><i class="fas fa-calendar-check me-1"></i> حالة الزيارة</label>
+                        <select id="visitFilter" class="form-select bg-light border-success">
+                            <option value="">الكل</option>
+                            <option value="recent">تمت الزيارة (أقل من سنة)</option>
+                            <option value="old">تجاوزت سنة دون زيارة</option>
+                            <option value="none">لم تُسجّل زيارة</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <label class="form-label text-secondary fw-bold"><i class="fas fa-users me-1"></i> حجم المؤسسة</label>
+                        <select id="sizeFilter" class="form-select bg-light border-info">
+                            <option value="">الكل</option>
+                            <option value="small">صغرى (أقل من 30)</option>
+                            <option value="medium">متوسطة (30 إلى 70)</option>
+                            <option value="large">كبرى (أكثر من 70)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <label class="form-label text-secondary fw-bold"><i class="fas fa-exclamation-triangle me-1"></i> حالة الاستيعاب</label>
+                        <select id="capacityFilter" class="form-select bg-light border-danger">
+                            <option value="">الكل</option>
+                            <option value="over">تجاوزت الطاقة</option>
+                            <option value="none">غير متوفرة</option>
+                            <option value="normal">في حدود الطاقة</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <label class="form-label text-secondary fw-bold"><i class="fas fa-clipboard-check me-1"></i> إطار التفقد والإرشاد</label>
+                        <select id="inspectorFilter" class="form-select bg-light border-primary">
+                            <option value="">الكل</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12 mt-3 text-end">
+                        <button class="btn btn-danger px-4 rounded-pill shadow-sm" onclick="resetFilters()"><i class="fas fa-sync-alt me-2"></i>إعادة ضبط الفلاتر</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- مربع الإحصائيات الفرعية الذكي -->
+            <div id="subStatsContainer" class="d-none mb-4 p-4 bg-white shadow-sm" style="border-radius: 15px; border: 1px solid #e0e0e0; border-right: 5px solid #ffc107;"></div>
+
+            <!-- العداد وأزرار التحكم -->
+            <div class="mb-4 d-flex flex-wrap justify-content-center align-items-center gap-3">
+                <div class="results-badge text-center" id="resultsCountDisplay"></div>
+                
+                <div class="bg-white px-3 py-2 rounded-pill shadow-sm border border-light d-flex align-items-center">
+                    <label class="me-2 fw-bold text-secondary mb-0"><i class="fas fa-sort me-1"></i>الترتيب:</label>
+                    <select id="sortFilter" class="form-select form-select-sm w-auto fw-bold border-0 bg-light rounded-pill" style="cursor:pointer;" onchange="applyFilters()">
+                        <option value="default">الافتراضي</option>
+                        <option value="visit_desc">تاريخ الزيارة (الأحدث أولاً)</option>
+                        <option value="visit_asc">تاريخ الزيارة (الأقدم أولاً)</option>
+                        <option value="children_desc">عدد الأطفال (الأكثر أولاً)</option>
+                        <option value="children_asc">عدد الأطفال (الأقل أولاً)</option>
+                    </select>
+                </div>
+
+                <button id="showChartsBtn" class="btn btn-indigo fw-bold px-4 py-2 rounded-pill shadow-sm" onclick="openChartsModal()">
+                    <i class="fas fa-chart-bar me-2"></i>لوحة القيادة البصرية
+                </button>
+
+                <button id="showMapBtn" class="btn btn-pink fw-bold px-4 py-2 rounded-pill shadow-sm d-none" onclick="openMapModal()">
+                    <i class="fas fa-map-marked-alt me-2"></i>عرض الخريطة التفاعلية
+                </button>
+            </div>
+            
+            <!-- عرض البطاقات -->
+            <div class="row" id="cardsContainer"></div>
+
+            <!-- أزرار الملاحة -->
+            <div class="d-flex flex-column align-items-center mt-5" id="paginationContainer">
+                <div class="mb-4 d-flex align-items-center bg-white px-4 py-2 rounded-pill shadow-sm border border-light">
+                    <label class="me-3 fw-bold text-secondary mb-0">عرض عدد المؤسسات بالصفحة:</label>
+                    <select id="itemsPerPageSelect" class="form-select form-select-sm w-auto fw-bold rounded-pill">
+                        <option value="9">9 مؤسسات</option>
+                        <option value="18">18 مؤسسة</option>
+                        <option value="36">36 مؤسسة</option>
+                        <option value="100">100 مؤسسة</option>
+                        <option value="all">عرض الكل</option>
+                    </select>
+                </div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-lg shadow-sm rounded-4" id="pagination"></ul>
+                </nav>
+            </div>
+
+            <!-- الإحصائيات العامة الرقمية الثابتة في صفحة الاستقبال -->
+            <div class="section-divider"></div>
+            <div id="statsContainer">
+                <h2 class="section-title" id="nationalTitle">الإحصائيات العامة للمؤسسات</h2>
+                
+                <div class="row g-4 justify-content-center mb-5" id="nationalStatsCards"></div>
+
+                <div class="mb-5 bg-white p-4 rounded-4 shadow-sm border border-light" id="generalStateSection">
+                    <h4 class="text-center fw-bold mb-4" style="color: #0056b3;"><i class="fas fa-map-marked-alt me-2"></i>توزيع مؤسسات الطفولة حسب الولاية</h4>
+                    <div class="row g-3 justify-content-center" id="stateStatsCards"></div>
+                </div>
+                
+                <div class="mb-5 bg-white p-4 rounded-4 shadow-sm border border-light">
+                    <h4 class="text-center fw-bold mb-4" style="color: #0056b3;"><i class="fas fa-chart-pie me-2"></i>توزيع مؤسسات الطفولة حسب وضعية المؤسسة</h4>
+                    <div class="row g-3 justify-content-center" id="statusStatsCards"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- نافذة لوحة القيادة البصرية (الرسوم البيانية التفاعلية فقط) -->
+    <div class="modal fade" id="chartsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-indigo text-white border-0" style="background-color: #6610f2;">
+                    <h5 class="modal-title fw-bold text-white"><i class="fas fa-chart-line me-2"></i>لوحة القيادة البصرية</h5>
+                    <button type="button" class="btn-close btn-close-white ms-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    
+                    <p class="text-center text-secondary mb-5"><i class="fas fa-info-circle text-primary me-2"></i>هذه الرسوم تتفاعل آلياً مع الفلاتر المختارة في محرك البحث</p>
+                    
+                    <div class="row mb-4 justify-content-center">
+                        <div class="col-md-6 col-lg-5">
+                            <div class="chart-container">
+                                <h5 id="typeChartTitle" class="text-center text-primary fw-bold mb-4">توزيع المؤسسات حسب النوع</h5>
+                                <div class="chart-wrapper">
+                                    <canvas id="typeChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-5">
+                            <div class="chart-container">
+                                <h5 id="statusChartTitle" class="text-center text-primary fw-bold mb-4">توزيع المؤسسات حسب الوضعية</h5>
+                                <div class="chart-wrapper">
+                                    <canvas id="statusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4 justify-content-center">
+                        <div class="col-12 col-lg-10">
+                            <div class="chart-container border-primary" style="border-width: 2px;">
+                                <h5 id="institutionsChartTitle" class="text-center fw-bold mb-2" style="color: #0d6efd;"><i class="fas fa-building me-2"></i>توزيع مؤسسات الطفولة</h5>
+                                <p id="institutionsChartSubtitle" class="text-center text-secondary fw-bold mb-4" style="font-size: 0.9rem;"></p>
+                                <div class="chart-wrapper" style="height: 350px;">
+                                    <canvas id="institutionsStateChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-5 justify-content-center">
+                        <div class="col-12 col-lg-10">
+                            <div class="chart-container border-info" style="border-width: 2px;">
+                                <h5 id="childrenChartTitle" class="text-center fw-bold mb-2" style="color: #0284c7;"><i class="fas fa-users me-2"></i>توزيع الأطفال المرسمين</h5>
+                                <p id="childrenChartSubtitle" class="text-center text-secondary fw-bold mb-4" style="font-size: 0.9rem;"></p>
+                                <div class="chart-wrapper" style="height: 350px;">
+                                    <canvas id="childrenStateChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-secondary fw-bold px-4" data-bs-dismiss="modal">إغلاق اللوحة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الخريطة التفاعلية -->
+    <div class="modal fade" id="mapModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white border-0">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-map-marked-alt me-2"></i>الخريطة التفاعلية لمؤسسات الطفولة</h5>
+                    <button type="button" class="btn-close btn-close-white ms-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="interactiveMap"></div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-secondary fw-bold px-4" data-bs-dismiss="modal">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // --- قاعدة بيانات المستخدمين ---
+        const usersDB = {
+            "admin": { password: "123", role: "central", state: "الكل", title: "الإدارة المركزية" },
+            "sousse": { password: "000", role: "regional", state: "سوسة", title: "المندوبية الجهوية بسوسة" },
+            "tunis": { password: "111", role: "regional", state: "تونس", title: "المندوبية الجهوية بتونس" },
+            "monastir": { password: "222", role: "regional", state: "المنستير", title: "المندوبية الجهوية بالمنستير" }
+        };
+        let currentUser = null;
+
+        let globalData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        let itemsPerPage = 9; 
+        
+        let chartInstType = null;
+        let chartInstStatus = null;
+        let chartInstChildrenState = null;
+        let chartInstInstitutionsState = null;
+
+        let myMap = null;
+        let markersGroup = null;
+        let mapModalInstance = null;
+        let chartsModalInstance = null;
+        let isChartsRendered = false; 
+
+        let inspectorData = {}; 
+
+        // --- نظام الدخول وجلب البيانات ---
+        function attemptLogin() {
+            const user = document.getElementById('usernameInput').value.trim();
+            const pass = document.getElementById('passwordInput').value.trim();
+            
+            if (usersDB[user] && usersDB[user].password === pass) {
+                currentUser = usersDB[user];
+                document.getElementById('loginSection').classList.add('d-none');
+                document.getElementById('loadingSection').classList.replace('d-none', 'd-flex');
+                
+                document.getElementById('userBadge').innerHTML = `<i class="fas fa-user-circle me-1"></i> ${currentUser.title}`;
+                
+                fetchExcelData();
+            } else {
+                document.getElementById('loginError').classList.remove('d-none');
+            }
+        }
+
+        async function fetchExcelData() {
+            try {
+                const response = await fetch('data.xls'); 
+                if (!response.ok) throw new Error("File not found on server");
+                
+                // محاولة استخراج تاريخ آخر تعديل للملف من السيرفر
+                const lastModifiedHeader = response.headers.get('Last-Modified');
+                if (lastModifiedHeader) {
+                    const dateObj = new Date(lastModifiedHeader);
+                    const formattedDate = dateObj.toLocaleDateString('ar-TN', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const hours = String(dateObj.getHours()).padStart(2, '0');
+                    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                    document.getElementById('updateDateValue').innerText = `${formattedDate} على الساعة: ${hours}:${minutes}`;
+                    document.getElementById('lastUpdateContainer').classList.remove('d-none');
+                } else {
+                    // كبديل إذا لم يرسل السيرفر التاريخ، نستخدم تاريخ اليوم
+                    const dateObj = new Date();
+                    const formattedDate = dateObj.toLocaleDateString('ar-TN', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const hours = String(dateObj.getHours()).padStart(2, '0');
+                    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                    document.getElementById('updateDateValue').innerText = `${formattedDate} (تحيين تقريبي)`;
+                    document.getElementById('lastUpdateContainer').classList.remove('d-none');
+                }
+                
+                const arrayBuffer = await response.arrayBuffer();
+                const data = new Uint8Array(arrayBuffer);
+                const workbook = XLSX.read(data, {type: 'array'});
+                
+                let allData = [];
+                workbook.SheetNames.forEach(sheetName => {
+                    const worksheet = workbook.Sheets[sheetName];
+                    const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+                    const validData = json.filter(row => row['الولاية'] || row['نوع المؤسسة']);
+                    allData = allData.concat(validData);
+                });
+                
+                if(allData.length > 0) {
+                    processExtractedData(allData);
+                } else {
+                    alert("الملف فارغ أو لا يمكن قراءته.");
+                    resetToLogin();
+                }
+            } catch (error) {
+                console.error(error);
+                alert("خطأ: تعذر جلب ملف data.xls. يرجى التأكد من وجود الملف وتجربة ذلك بعد نشر الموقع على سيرفر (أو استخدام Live Server).");
+                resetToLogin();
+            }
+        }
+
+        function resetToLogin() {
+            document.getElementById('loadingSection').classList.replace('d-flex', 'd-none');
+            document.getElementById('loginSection').classList.remove('d-none');
+        }
+
+        function processExtractedData(allData) {
+            let processed = allData.map(item => {
+                let visitDateKey = Object.keys(item).find(k => k.includes('زيار') || k.includes('تاريخ الزيار') || k.includes('تاريخ آخر'));
+                let visitDate = visitDateKey ? parseExcelDate(item[visitDateKey]) : null;
+                
+                item._visitStatus = 'none'; item._visitFormatted = ''; item._visitTimestamp = 0; 
+                if(visitDate && !isNaN(visitDate.getTime())) {
+                    item._visitTimestamp = visitDate.getTime();
+                    const diffDays = (new Date() - visitDate) / (1000 * 60 * 60 * 24);
+                    item._visitFormatted = visitDate.toLocaleDateString('ar-TN');
+                    item._visitStatus = diffDays <= 365 ? 'recent' : 'old';
+                }
+
+                let childKey = Object.keys(item).find(k => {
+                    let cleanK = k.replace(/أ/g, 'ا').replace(/إ/g, 'ا').toLowerCase();
+                    return cleanK.includes('طفل') || cleanK.includes('اطفال') || cleanK.includes('مرسم');
+                });
+                let capKey = Object.keys(item).find(k => k.includes('طاقة') || k.includes('استيعاب'));
+
+                item._childrenCount = childKey && !isNaN(parseInt(item[childKey])) ? parseInt(item[childKey]) : 0;
+                item._capacity = capKey && !isNaN(parseInt(item[capKey])) ? parseInt(item[capKey]) : 0;
+
+                if (item._childrenCount === 0) item._sizeCategory = 'none';
+                else if (item._childrenCount < 30) item._sizeCategory = 'small';
+                else if (item._childrenCount <= 70) item._sizeCategory = 'medium';
+                else item._sizeCategory = 'large';
+
+                item._isOverCapacity = (item._capacity > 0 && item._childrenCount > item._capacity);
+                return item;
+            });
+
+            if (currentUser.role === 'regional') {
+                globalData = processed.filter(item => item['الولاية'] === currentUser.state);
+            } else {
+                globalData = processed; 
+            }
+
+            filteredData = globalData;
+            inspectorData = extractInspectorsAndAssistants(globalData);
+            
+            document.getElementById('loadingSection').classList.replace('d-flex', 'd-none');
+            document.getElementById('mainContent').classList.remove('d-none');
+            
+            mapModalInstance = new bootstrap.Modal(document.getElementById('mapModal'));
+            chartsModalInstance = new bootstrap.Modal(document.getElementById('chartsModal'));
+
+            populateFilters();
+            
+            if (currentUser.role === 'regional') {
+                const stateDropdown = document.getElementById('stateFilter');
+                stateDropdown.value = currentUser.state;
+                stateDropdown.disabled = true;
+                document.getElementById('generalStateSection').classList.add('d-none');
+                
+                updateDelegationFilter(currentUser.state);
+                populateInspectorFilter(currentUser.state);
+            } else {
+                populateInspectorFilter(""); 
+            }
+            
+            renderStatsCards(); 
+            
+            updateItemsPerPage(); 
+            updateResultsCount();
+            renderCards();
+            renderPagination();
+        }
+
+        function parseExcelDate(val) {
+            if (!val) return null;
+            if (!isNaN(val)) return new Date(Math.round((val - 25569) * 86400 * 1000));
+            if (typeof val === 'string') {
+                const parts = val.split(/[-/]/);
+                if (parts.length === 3) {
+                    if (parts[2].length === 4) return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`); 
+                    if (parts[0].length === 4) return new Date(val); 
+                }
+                return new Date(val);
+            }
+            return null;
+        }
+
+        function extractInspectorsAndAssistants(data) {
+            let stateFreq = {};
+            data.forEach(item => {
+                let state = item['الولاية']; let cadre = item['Cadreinspection'];
+                if (state && cadre && typeof cadre === 'string') {
+                    state = state.trim();
+                    if (!stateFreq[state]) stateFreq[state] = {};
+                    let names = cadre.split(/[,،\-\/]/).map(n => n.trim()).filter(n => n.length > 2);
+                    names.forEach(name => { stateFreq[state][name] = (stateFreq[state][name] || 0) + 1; });
+                }
+            });
+
+            let headCounts = {}; let tailCounts = {}; 
+            data.forEach(item => {
+                let state = item['الولاية']; let cadre = item['Cadreinspection'];
+                if (state && cadre && typeof cadre === 'string') {
+                    state = state.trim();
+                    let names = cadre.split(/[,،\-\/]/).map(n => n.trim()).filter(n => n.length > 2);
+                    if (names.length > 0) {
+                        if (!headCounts[state]) headCounts[state] = {};
+                        if (!tailCounts[state]) tailCounts[state] = {};
+                        let sorted = names.map((name, idx) => ({ name: name, f: stateFreq[state][name], idx: idx }));
+                        sorted.sort((a, b) => {
+                            if (b.f !== a.f) return b.f - a.f;
+                            return a.idx - b.idx;
+                        });
+                        let head = sorted[0].name;
+                        headCounts[state][head] = (headCounts[state][head] || 0) + 1;
+                        let tails = sorted.slice(1).map(x => x.name);
+                        tails.forEach(t => { tailCounts[state][t] = (tailCounts[state][t] || 0) + 1; });
+                    }
+                }
+            });
+
+            let resultData = {};
+            for (let state in stateFreq) {
+                let finalInspectors = new Set(); let finalAssistants = new Set();
+                let allNames = Object.keys(stateFreq[state]);
+                allNames.forEach(name => {
+                    let astCount = (tailCounts[state] && tailCounts[state][name]) ? tailCounts[state][name] : 0;
+                    let inspCount = (headCounts[state] && headCounts[state][name]) ? headCounts[state][name] : 0;
+                    if (astCount >= 5) {
+                        finalAssistants.add(name);
+                    } else if (inspCount > 0 && inspCount > astCount) {
+                        finalInspectors.add(name);
+                    }
+                });
+                if (finalInspectors.size > 0 || finalAssistants.size > 0) {
+                    resultData[state] = { inspectors: Array.from(finalInspectors).sort(), assistants: Array.from(finalAssistants).sort() };
+                }
+            }
+            return resultData;
+        }
+
+        function populateInspectorFilter(selectedState) {
+            const inspSelect = document.getElementById('inspectorFilter');
+            inspSelect.innerHTML = '<option value="">الكل</option>';
+            if (!selectedState || !inspectorData[selectedState]) {
+                inspSelect.disabled = true; inspSelect.innerHTML = '<option value="">الرجاء اختيار ولاية أولاً</option>';
+                return;
+            }
+            inspSelect.disabled = false;
+            let data = inspectorData[selectedState];
+            if (data.inspectors && data.inspectors.length > 0) {
+                inspSelect.innerHTML += `<option disabled>--- متفقدو الطفولة ---</option>`;
+                data.inspectors.forEach(insp => { inspSelect.innerHTML += `<option value="${insp}">${insp}</option>`; });
+            }
+            if (data.assistants && data.assistants.length > 0) {
+                inspSelect.innerHTML += `<option disabled>--- المساعدون البيداغوجيون ---</option>`;
+                data.assistants.forEach(ast => { inspSelect.innerHTML += `<option value="${ast}">${ast}</option>`; });
+            }
+        }
+
+        // --- دوال النافذة المنبثقة للرسوم البيانية ---
+        function openChartsModal() { chartsModalInstance.show(); }
+        document.getElementById('chartsModal').addEventListener('shown.bs.modal', function () {
+            updateInteractiveCharts(); isChartsRendered = true;
+        });
+
+        // --- دوال الخريطة ---
+        function initMap() {
+            if (!myMap) {
+                myMap = L.map('interactiveMap').setView([33.8869, 9.5375], 6);
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri', maxZoom: 19 }).addTo(myMap);
+                markersGroup = L.featureGroup().addTo(myMap);
+            }
+        }
+        function getMarkerIcon(type) {
+            let iconClass = 'fa-building'; let markerColor = '#6c757d';   
+            if (type) {
+                if (type.includes('روضة')) { iconClass = 'fa-child'; markerColor = '#0d6efd'; } 
+                else if (type.includes('محضنة مدرسية')) { iconClass = 'fa-school'; markerColor = '#fd7e14'; } 
+                else if (type.includes('محضنة')) { iconClass = 'fa-baby-carriage'; markerColor = '#198754'; } 
+                else if (type.includes('نادي') || type.includes('مركب')) { iconClass = 'fa-palette'; markerColor = '#6f42c1'; }
+            }
+            return L.divIcon({
+                className: 'custom-leaflet-icon',
+                html: `<div style="background-color: ${markerColor}; color: white; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.4); font-size: 16px;"><i class="fas ${iconClass}"></i></div>`,
+                iconSize: [34, 34], iconAnchor: [17, 17], popupAnchor: [0, -17]
+            });
+        }
+        function drawMap() {
+            if (!myMap) initMap();
+            markersGroup.clearLayers();
+            let hasValidCoords = false;
+            filteredData.forEach(item => {
+                let coordX = '', coordY = '';
+                Object.keys(item).forEach(key => {
+                    const cleanKey = key.trim().toUpperCase();
+                    if (cleanKey === 'X' || cleanKey.includes(' X') || cleanKey.includes('X ')) coordX = item[key];
+                    if (cleanKey === 'Y' || cleanKey.includes(' Y') || cleanKey.includes('Y ')) coordY = item[key];
+                });
+                if (coordX && coordY && String(coordX).trim() !== '' && String(coordY).trim() !== '') {
+                    const cleanX = parseFloat(String(coordX).trim().replace(',', '.'));
+                    const cleanY = parseFloat(String(coordY).trim().replace(',', '.'));
+                    if (!isNaN(cleanX) && !isNaN(cleanY)) {
+                        hasValidCoords = true;
+                        const name = item['المؤسسة'] || 'بدون اسم'; const type = item['نوع المؤسسة'] || 'غير محدد'; const status = item['وضعية المؤسسة'] || 'غير محدد'; const address = item['عنوان المؤسسة'] || 'لا يوجد عنوان مدرج';
+                        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${cleanX},${cleanY}`;
+                        const popupContent = `
+                            <div dir="rtl" style="font-family: Tajawal; min-width: 200px;">
+                                <h6 style="color:#0d6efd; font-weight:bold; margin-bottom:10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">${name}</h6>
+                                <p style="margin:4px 0; font-size: 0.9rem;"><strong><i class="fas fa-shapes text-secondary me-1"></i> النوع:</strong> ${type}</p>
+                                <p style="margin:4px 0; font-size: 0.9rem;"><strong><i class="fas fa-info-circle text-secondary me-1"></i> الوضعية:</strong> ${status}</p>
+                                <p style="margin:4px 0 12px 0; font-size: 0.85rem; color:#555;"><i class="fas fa-map-marker-alt text-danger me-1"></i> ${address}</p>
+                                <a href="${mapUrl}" target="_blank" class="btn btn-sm btn-success w-100 fw-bold btn-map-hover" style="border-radius: 6px; color: white !important; text-decoration: none;">
+                                    <i class="fas fa-external-link-alt me-1"></i> فتح في جوجل مابس
+                                </a>
+                            </div>`;
+                        L.marker([cleanX, cleanY], { icon: getMarkerIcon(type) }).bindPopup(popupContent).addTo(markersGroup);
+                    }
+                }
+            });
+            if (hasValidCoords) myMap.fitBounds(markersGroup.getBounds(), { padding: [40, 40], maxZoom: 16 });
+            else myMap.setView([33.8869, 9.5375], 6);
+        }
+        function openMapModal() { mapModalInstance.show(); }
+        document.getElementById('mapModal').addEventListener('shown.bs.modal', function () {
+            if (!myMap) initMap();
+            myMap.invalidateSize();
+            drawMap();
+        });
+
+        // --------------------------------
+
+        function updateItemsPerPage() {
+            const perPageVal = document.getElementById('itemsPerPageSelect').value;
+            itemsPerPage = (perPageVal === 'all') ? (filteredData.length > 0 ? filteredData.length : 1) : parseInt(perPageVal);
+        }
+
+        document.getElementById('itemsPerPageSelect').addEventListener('change', function() {
+            updateItemsPerPage();
+            currentPage = 1; 
+            renderCards();
+            renderPagination();
+        });
+
+        function updateResultsCount() {
+            let totalChildren = filteredData.reduce((sum, item) => sum + item._childrenCount, 0);
+            document.getElementById('resultsCountDisplay').innerHTML = `
+                تم العثور على <span class="highlight">${filteredData.length}</span> مؤسسة<br>
+                <span style="font-size: 1.1rem; color: #555;">تضم إجمالاً <span class="highlight-children">${totalChildren.toLocaleString('ar-TN')}</span> طفل مرسّم</span>
+            `;
+            let hasAnyCoords = filteredData.some(item => {
+                let x = false, y = false;
+                Object.keys(item).forEach(key => {
+                    const k = key.trim().toUpperCase();
+                    if (k === 'X' || k.includes(' X') || k.includes('X ')) x = true;
+                    if (k === 'Y' || k.includes(' Y') || k.includes('Y ')) y = true;
+                });
+                return x && y;
+            });
+            document.getElementById('showMapBtn').classList.toggle('d-none', !hasAnyCoords);
+        }
+
+        function filterFromCard(filterType, value, keepOthers = false) {
+            if (!keepOthers) resetFiltersUI();
+            if (filterType === 'type') document.getElementById('typeFilter').value = value;
+            else if (filterType === 'state') { 
+                document.getElementById('stateFilter').value = value; 
+                updateDelegationFilter(value); 
+                populateInspectorFilter(value);
+            } 
+            else if (filterType === 'status') document.getElementById('statusFilter').value = value;
+            else if (filterType === 'delegation') document.getElementById('delegationFilter').value = value;
+            else if (filterType === 'promoter') document.getElementById('promoterFilter').value = value;
+
+            applyFilters();
+            if (chartsModalInstance) chartsModalInstance.hide();
+            document.getElementById('searchSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function toggleSubFilter(filterType, value) {
+            const el = document.getElementById(filterType + 'Filter');
+            if (el.value === value) el.value = ""; else el.value = value; 
+            if(filterType === 'state') {
+                updateDelegationFilter(el.value);
+                populateInspectorFilter(el.value);
+                document.getElementById('delegationFilter').value = "";
+            }
+            applyFilters();
+        }
+
+        function resetFiltersUI() {
+            document.getElementById('searchInput').value = "";
+            if(currentUser && currentUser.role === 'regional') {
+                document.getElementById('stateFilter').value = currentUser.state;
+            } else {
+                document.getElementById('stateFilter').value = "";
+            }
+            document.getElementById('delegationFilter').innerHTML = '<option value="">الكل</option>';
+            document.getElementById('typeFilter').value = "";
+            document.getElementById('statusFilter').value = "";
+            document.getElementById('promoterFilter').value = "";
+            document.getElementById('visitFilter').value = "";
+            document.getElementById('sizeFilter').value = "";
+            document.getElementById('capacityFilter').value = "";
+            
+            if(currentUser && currentUser.role === 'regional') {
+                updateDelegationFilter(currentUser.state);
+                populateInspectorFilter(currentUser.state);
+            } else {
+                document.getElementById('inspectorFilter').innerHTML = '<option value="">الرجاء اختيار ولاية أولاً</option>';
+                document.getElementById('inspectorFilter').disabled = true;
+            }
+            
+            document.getElementById('sortFilter').value = "default";
+        }
+
+        function resetFilters() {
+            resetFiltersUI();
+            applyFilters();
+        }
+
+        function renderSubStats() {
+            const searchV = document.getElementById('searchInput').value.trim();
+            const stateVal = document.getElementById('stateFilter').value;
+            const delegationVal = document.getElementById('delegationFilter').value;
+            const typeVal = document.getElementById('typeFilter').value;
+            const statusVal = document.getElementById('statusFilter').value;
+            const promoterVal = document.getElementById('promoterFilter').value;
+            const visitVal = document.getElementById('visitFilter').value;
+            const sizeVal = document.getElementById('sizeFilter').value;
+            const capVal = document.getElementById('capacityFilter').value;
+            const inspVal = document.getElementById('inspectorFilter').value;
+            
+            const container = document.getElementById('subStatsContainer');
+            container.innerHTML = '';
+
+            let isAllEmpty = (typeVal === "" && delegationVal === "" && statusVal === "" && promoterVal === "" && inspVal === "" && visitVal === "" && sizeVal === "" && capVal === "" && searchV === "");
+            if (currentUser && currentUser.role === 'central' && stateVal === "" && isAllEmpty) {
+                container.classList.add('d-none'); return;
+            } else if (currentUser && currentUser.role === 'regional' && isAllEmpty) {
+                container.classList.add('d-none'); return;
+            }
+            
+            container.classList.remove('d-none');
+            let htmlContent = '';
+            
+            let roleName = "إطار التفقد";
+            if (stateVal !== "" && inspectorData[stateVal]) {
+                if (inspectorData[stateVal].inspectors.includes(inspVal)) roleName = "متفقد الطفولة";
+                else if (inspectorData[stateVal].assistants.includes(inspVal)) roleName = "المساعد البيداغوجي";
+            }
+            
+            let activeFilters = [];
+            if(searchV) activeFilters.push(`بحث: ${searchV}`);
+            if(stateVal && currentUser.role === 'central') activeFilters.push(`الولاية: ${stateVal}`);
+            if(delegationVal) activeFilters.push(`المعتمدية: ${delegationVal}`);
+            if(typeVal) activeFilters.push(`النوع: ${typeVal}`);
+            if(statusVal) activeFilters.push(`الوضعية: ${statusVal}`);
+            if(promoterVal) activeFilters.push(`الباعث: ${promoterVal}`);
+            if(inspVal) activeFilters.push(`${roleName}: ${inspVal}`);
+            if(visitVal) activeFilters.push(`الزيارة: ${document.querySelector(`#visitFilter option[value="${visitVal}"]`).innerText}`);
+            if(sizeVal) activeFilters.push(`الحجم: ${document.querySelector(`#sizeFilter option[value="${sizeVal}"]`).innerText}`);
+            if(capVal) activeFilters.push(`الاستيعاب: ${document.querySelector(`#capacityFilter option[value="${capVal}"]`).innerText}`);
+
+            let activeFiltersHtml = `<div class="mb-4 pb-2 border-bottom text-secondary" style="font-size: 0.95rem;"><i class="fas fa-filter me-1"></i> <strong>الإحصائيات للمؤسسات المفلترة حسب:</strong> ${activeFilters.join(' | ')}</div>`;
+            htmlContent += activeFiltersHtml;
+
+            function getCountsIgnoring(fieldToCount, filterToIgnore) {
+                const counts = {};
+                globalData.forEach(item => {
+                    const rowText = Object.values(item).join(' ').toLowerCase();
+                    let match = rowText.includes(searchV.toLowerCase());
+                    
+                    if (filterToIgnore !== 'promoter') match = match && (promoterVal === "" || item['طبيعة الباعث'] == promoterVal);
+                    if (filterToIgnore !== 'state') match = match && (stateVal === "" || item['الولاية'] == stateVal);
+                    if (filterToIgnore !== 'delegation') match = match && (delegationVal === "" || item['المعتمدية'] == delegationVal);
+                    if (filterToIgnore !== 'type') match = match && (typeVal === "" || item['نوع المؤسسة'] == typeVal);
+                    if (filterToIgnore !== 'status') match = match && (statusVal === "" || item['وضعية المؤسسة'] == statusVal);
+                    match = match && (visitVal === "" || item._visitStatus === visitVal);
+                    match = match && (sizeVal === "" || item._sizeCategory === sizeVal);
+
+                    if (filterToIgnore !== 'inspector' && inspVal !== "") {
+                        let cadre = item['Cadreinspection'] ? item['Cadreinspection'] : "";
+                        match = match && cadre.includes(inspVal);
+                    }
+                    if (capVal === 'over') match = match && item._isOverCapacity;
+                    else if (capVal === 'none') match = match && (!item._capacity || item._capacity === 0);
+                    else if (capVal === 'normal') match = match && (item._capacity > 0 && !item._isOverCapacity);
+
+                    if (match) {
+                        const val = item[fieldToCount];
+                        if (val && val.trim() !== "") counts[val] = (counts[val] || 0) + 1;
+                    }
+                });
+                return counts;
+            }
+
+            // 1. الوضعيات
+            const statusCounts = getCountsIgnoring('وضعية المؤسسة', 'status');
+            let statusTitle = `التوزيع حسب وضعية المؤسسة`;
+            let statusHTML = `<h6 class="fw-bold mb-3 mt-2" style="color: #0056b3;"><i class="fas fa-chart-pie me-2"></i>${statusTitle}</h6><div class="row g-2 justify-content-center mb-4">`;
+            Object.keys(statusCounts).sort((a, b) => statusCounts[b] - statusCounts[a]).forEach(status => {
+                let isSelected = (status === statusVal); let bgStyle = "background-color: #f8f9fa; border: 1px solid #dee2e6;"; let textColor = "#333";
+                if (status.includes('نقائص')) { bgStyle = "background-color: #FFC000; border: 1px solid #e6ac00;"; textColor = "#333333"; } 
+                else if (status.includes('نشاط')) { bgStyle = "background-color: #198754; border: 1px solid #146c43;"; textColor = "#ffffff"; } 
+                else if (status.includes('معاينة')) { bgStyle = "background-color: #0dcaf0; border: 1px solid #0bacce;"; textColor = "#212529"; } 
+                else if (status.includes('غلق') || status.includes('مغلق')) { bgStyle = "background-color: #dc3545; border: 1px solid #b02a37;"; textColor = "#ffffff"; }
+                let activeClass = isSelected ? "active" : ""; let checkIcon = isSelected ? `<i class="fas fa-check-circle position-absolute" style="top: -8px; right: -8px; font-size: 1.4rem; color: #0d6efd; background: white; border-radius: 50%; z-index: 3;"></i>` : ``;
+                statusHTML += `<div class="col-6 col-md-3 col-lg-2"><div class="p-2 text-center rounded shadow-sm drilldown-card position-relative ${activeClass}" style="${bgStyle}" onclick="toggleSubFilter('status', '${status}')">${checkIcon}<div class="fw-bold" style="font-size: 1.2rem; color: ${textColor};">${statusCounts[status]}</div><div style="font-size: 0.8rem; font-weight: 700; color: ${textColor};">${status}</div></div></div>`;
+            });
+            statusHTML += `</div>`; htmlContent += statusHTML;
+
+            // 2. الولايات
+            if (stateVal === "" && currentUser && currentUser.role === 'central') {
+                const stateCounts = getCountsIgnoring('الولاية', 'state');
+                let stateTitle = `التوزيع حسب الولاية`;
+                let stateHTML = `<h6 class="fw-bold mb-3 border-top pt-3" style="color: #0056b3;"><i class="fas fa-map-marked-alt me-2"></i>${stateTitle}</h6><div class="row g-2 justify-content-center mb-4">`;
+                Object.keys(stateCounts).sort((a, b) => stateCounts[b] - stateCounts[a]).forEach(state => {
+                    let isSelected = (state === stateVal); let activeClass = isSelected ? "active" : ""; let checkIcon = isSelected ? `<i class="fas fa-check-circle position-absolute" style="top: -8px; right: -8px; font-size: 1.4rem; color: #0d6efd; background: white; border-radius: 50%; z-index: 3;"></i>` : ``;
+                    stateHTML += `<div class="col-6 col-md-3 col-lg-2"><div class="p-2 text-center rounded shadow-sm drilldown-card position-relative ${activeClass}" style="background-color: #f8fbff; border: 1px solid #d0e2ff;" onclick="toggleSubFilter('state', '${state}')">${checkIcon}<div class="fw-bold" style="font-size: 1.2rem; color: #dc3545;">${stateCounts[state]}</div><div style="font-size: 0.8rem; font-weight: 700; color: #444;">${state}</div></div></div>`;
+                });
+                stateHTML += `</div>`; htmlContent += stateHTML;
+            }
+
+            // 3. الأنواع
+            const typeCounts = getCountsIgnoring('نوع المؤسسة', 'type');
+            let typeTitle = `التوزيع حسب نوع المؤسسة`;
+            let typeHTML = `<h6 class="fw-bold mb-3 border-top pt-3" style="color: #0056b3;"><i class="fas fa-shapes me-2"></i>${typeTitle}</h6><div class="row g-2 justify-content-center mb-4">`;
+            Object.keys(typeCounts).sort((a, b) => typeCounts[b] - typeCounts[a]).forEach(type => {
+                let isSelected = (type === typeVal); let activeClass = isSelected ? "active" : ""; let checkIcon = isSelected ? `<i class="fas fa-check-circle position-absolute" style="top: -8px; right: -8px; font-size: 1.4rem; color: #0d6efd; background: white; border-radius: 50%; z-index: 3;"></i>` : ``;
+                typeHTML += `<div class="col-6 col-md-3 col-lg-2"><div class="p-2 text-center rounded shadow-sm drilldown-card position-relative ${activeClass}" style="background-color: #fffafb; border: 1px solid #f8d7da;" onclick="toggleSubFilter('type', '${type}')">${checkIcon}<div class="fw-bold" style="font-size: 1.2rem; color: #dc3545;">${typeCounts[type]}</div><div style="font-size: 0.8rem; font-weight: 700; color: #333;">${type}</div></div></div>`;
+            });
+            typeHTML += `</div>`; htmlContent += typeHTML;
+
+            // 4. المعتمديات
+            if (stateVal !== "" && delegationVal === "") {
+                const delCounts = getCountsIgnoring('المعتمدية', 'delegation');
+                let delTitle = `التوزيع حسب المعتمدية`;
+                let delHTML = `<h6 class="fw-bold mb-3 border-top pt-3" style="color: #0056b3;"><i class="fas fa-map-marker-alt me-2"></i>${delTitle}</h6><div class="row g-2 justify-content-center mb-2">`;
+                Object.keys(delCounts).sort((a, b) => delCounts[b] - delCounts[a]).forEach(delegation => {
+                    let isSelected = (delegation === delegationVal); let activeClass = isSelected ? "active" : ""; let checkIcon = isSelected ? `<i class="fas fa-check-circle position-absolute" style="top: -8px; right: -8px; font-size: 1.4rem; color: #0d6efd; background: white; border-radius: 50%; z-index: 3;"></i>` : ``;
+                    delHTML += `<div class="col-6 col-md-3 col-lg-2"><div class="p-2 text-center rounded shadow-sm drilldown-card position-relative ${activeClass}" style="background-color: #f8fbff; border: 1px solid #d0e2ff;" onclick="toggleSubFilter('delegation', '${delegation}')">${checkIcon}<div class="fw-bold" style="font-size: 1.2rem; color: #dc3545;">${delCounts[delegation]}</div><div style="font-size: 0.8rem; font-weight: 700; color: #444;">${delegation}</div></div></div>`;
+                });
+                delHTML += `</div>`; htmlContent += delHTML;
+            }
+
+            container.innerHTML = htmlContent;
+        }
+
+        // رسم البطاقات الإحصائية الثابتة على صفحة الاستقبال
+        function renderStatsCards() {
+            const nationalStatsCards = document.getElementById('nationalStatsCards');
+            const stateStatsCards = document.getElementById('stateStatsCards');
+            const statusStatsCards = document.getElementById('statusStatsCards');
+            
+            nationalStatsCards.innerHTML = ''; stateStatsCards.innerHTML = ''; statusStatsCards.innerHTML = '';
+            
+            const stateCounts = {}; const typeCounts = {}; const statusCounts = {};
+            
+            globalData.forEach(item => { // نستعمل globalData لتبقى مرجعية
+                const state = item['الولاية']; const type = item['نوع المؤسسة']; const status = item['وضعية المؤسسة'];
+                if(state && state.trim() !== "") stateCounts[state] = (stateCounts[state] || 0) + 1;
+                if(type && type.trim() !== "") typeCounts[type] = (typeCounts[type] || 0) + 1;
+                if(status && status.trim() !== "") statusCounts[status] = (statusCounts[status] || 0) + 1;
+            });
+
+            document.getElementById('nationalTitle').innerText = `الإحصائيات العامة للمؤسسات (${globalData.length})`;
+
+            Object.keys(typeCounts).sort((a, b) => typeCounts[b] - typeCounts[a]).forEach(type => {
+                nationalStatsCards.innerHTML += `<div class="col-6 col-md-4 col-lg-3"><div class="stat-card" onclick="filterFromCard('type', '${type}')"><div class="stat-number">${typeCounts[type]}</div><div class="stat-label">${type}</div></div></div>`;
+            });
+
+            if (currentUser && currentUser.role === 'central') {
+                Object.keys(stateCounts).sort((a, b) => stateCounts[b] - stateCounts[a]).forEach(state => {
+                    stateStatsCards.innerHTML += `
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <div class="state-card" onclick="filterFromCard('state', '${state}')">
+                            <div class="stat-number">${stateCounts[state]}</div>
+                            <div class="stat-label">${state}</div>
+                        </div>
+                    </div>`;
+                });
+            }
+
+            Object.keys(statusCounts).sort((a, b) => statusCounts[b] - statusCounts[a]).forEach(status => {
+                let bgStyle = "background-color: #f8f9fa; border: 2px solid #dee2e6;";
+                let textColor = "#333";
+                if (status.includes('نقائص')) { bgStyle = "background-color: #FFC000; border: 2px solid #e6ac00;"; textColor = "#333333"; } 
+                else if (status.includes('نشاط')) { bgStyle = "background-color: #198754; border: 2px solid #146c43;"; textColor = "#ffffff"; } 
+                else if (status.includes('معاينة')) { bgStyle = "background-color: #0dcaf0; border: 2px solid #0bacce;"; textColor = "#212529"; } 
+                else if (status.includes('غلق') || status.includes('مغلق')) { bgStyle = "background-color: #dc3545; border: 2px solid #b02a37;"; textColor = "#ffffff"; }
+
+                statusStatsCards.innerHTML += `
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="status-card" style="${bgStyle}" onclick="filterFromCard('status', '${status}')">
+                        <div class="stat-number" style="color: ${textColor};">${statusCounts[status]}</div>
+                        <div class="stat-label" style="color: ${textColor};">${status}</div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        // رسم الرسوم البيانية التفاعلية داخل النافذة المنبثقة فقط
+        function updateInteractiveCharts() {
+            if(!isChartsRendered && !document.getElementById('chartsModal').classList.contains('show')) return;
+
+            const searchV = document.getElementById('searchInput').value.trim();
+            const sVal = document.getElementById('stateFilter').value;
+            const tVal = document.getElementById('typeFilter').value;
+            const dVal = document.getElementById('delegationFilter').value;
+            const inspVal = document.getElementById('inspectorFilter').value;
+            
+            let roleName = "إطار التفقد";
+            if (sVal !== "" && inspectorData[sVal]) {
+                if (inspectorData[sVal].inspectors.includes(inspVal)) roleName = "متفقد الطفولة";
+                else if (inspectorData[sVal].assistants.includes(inspVal)) roleName = "المساعد البيداغوجي";
+            }
+            let inspTitlePart = inspVal !== "" ? ` (${roleName}: ${inspVal})` : "";
+            let baseLocStatus = sVal !== "" ? `بولاية ${sVal}` : "بالجمهورية التونسية";
+
+            document.getElementById('typeChartTitle').innerText = `توزيع المؤسسات ${baseLocStatus}${inspTitlePart} حسب النوع`;
+            document.getElementById('statusChartTitle').innerText = `توزيع المؤسسات ${baseLocStatus}${inspTitlePart} حسب الوضعية`;
+
+            let chartTitleStrChild = 'توزيع الأطفال المرسمين بالجمهورية التونسية حسب الولاية';
+            let chartTitleStrInst = 'توزيع مؤسسات الطفولة بالجمهورية التونسية حسب الولاية';
+            let groupBy = 'الولاية';
+
+            if (dVal !== "") {
+                groupBy = 'نوع المؤسسة';
+                chartTitleStrChild = tVal !== "" ? `توزيع الأطفال بـ "${tVal}" بمعتمدية ${dVal}${inspTitlePart}` : `توزيع الأطفال المرسمين بمعتمدية ${dVal}${inspTitlePart} حسب نوع المؤسسة`;
+                chartTitleStrInst = tVal !== "" ? `توزيع "${tVal}" بمعتمدية ${dVal}${inspTitlePart}` : `توزيع مؤسسات الطفولة بمعتمدية ${dVal}${inspTitlePart} حسب نوع المؤسسة`;
+            } else if (sVal !== "") {
+                groupBy = 'المعتمدية';
+                chartTitleStrChild = tVal !== "" ? `توزيع الأطفال بـ "${tVal}" بولاية ${sVal}${inspTitlePart} حسب المعتمدية` : `توزيع الأطفال المرسمين بولاية ${sVal}${inspTitlePart} حسب المعتمدية`;
+                chartTitleStrInst = tVal !== "" ? `توزيع "${tVal}" بولاية ${sVal}${inspTitlePart} حسب المعتمدية` : `توزيع مؤسسات الطفولة بولاية ${sVal}${inspTitlePart} حسب المعتمدية`;
+            } else if (tVal !== "") {
+                chartTitleStrChild = `توزيع الأطفال بـ "${tVal}"${inspTitlePart} حسب الولاية`;
+                chartTitleStrInst = `توزيع "${tVal}"${inspTitlePart} حسب الولاية`;
+            }
+
+            document.getElementById('childrenChartTitle').innerHTML = `<i class="fas fa-users me-2"></i>${chartTitleStrChild}`;
+            document.getElementById('institutionsChartTitle').innerHTML = `<i class="fas fa-building me-2"></i>${chartTitleStrInst}`;
+
+            let activeFilters = [];
+            if(searchV) activeFilters.push(`بحث: ${searchV}`);
+            if(sVal && currentUser.role === 'central') activeFilters.push(`الولاية: ${sVal}`);
+            if(dVal) activeFilters.push(`المعتمدية: ${dVal}`);
+            if(tVal) activeFilters.push(`النوع: ${tVal}`);
+            if(document.getElementById('statusFilter').value) activeFilters.push(`الوضعية: ${document.getElementById('statusFilter').value}`);
+            if(document.getElementById('promoterFilter').value) activeFilters.push(`الباعث: ${document.getElementById('promoterFilter').value}`);
+            if(inspVal) activeFilters.push(`${roleName}: ${inspVal}`);
+            if(document.getElementById('visitFilter').value) activeFilters.push(`الزيارة: ${document.querySelector(`#visitFilter option[value="${document.getElementById('visitFilter').value}"]`).innerText}`);
+            if(document.getElementById('sizeFilter').value) activeFilters.push(`الحجم: ${document.querySelector(`#sizeFilter option[value="${document.getElementById('sizeFilter').value}"]`).innerText}`);
+            if(document.getElementById('capacityFilter').value) activeFilters.push(`الاستيعاب: ${document.querySelector(`#capacityFilter option[value="${document.getElementById('capacityFilter').value}"]`).innerText}`);
+
+            let subtitleText = activeFilters.length > 0 ? `<i class="fas fa-filter me-1"></i> الفلاتر النشطة: ` + activeFilters.join(' | ') : `<i class="fas fa-filter me-1"></i> الفلاتر النشطة: لا يوجد (عرض الكل)`;
+            document.getElementById('childrenChartSubtitle').innerHTML = subtitleText;
+            document.getElementById('institutionsChartSubtitle').innerHTML = subtitleText;
+
+            const typeCounts = {}; const statusCounts = {};
+            const childrenGroups = {}; const instGroups = {};
+            
+            filteredData.forEach(item => { // تستعمل البيانات المفلترة لكي تتفاعل مع كل شيء
+                const type = item['نوع المؤسسة']; const status = item['وضعية المؤسسة'];
+                if(type && type.trim() !== "") typeCounts[type] = (typeCounts[type] || 0) + 1;
+                if(status && status.trim() !== "") statusCounts[status] = (statusCounts[status] || 0) + 1;
+
+                const key = item[groupBy];
+                if(key && key.trim() !== "") {
+                    childrenGroups[key] = (childrenGroups[key] || 0) + item._childrenCount;
+                    instGroups[key] = (instGroups[key] || 0) + 1;
+                }
+            });
+
+            // 1. الدوائر
+            if(chartInstType) chartInstType.destroy();
+            chartInstType = new Chart(document.getElementById('typeChart').getContext('2d'), {
+                type: 'doughnut',
+                data: { labels: Object.keys(typeCounts).sort((a, b) => typeCounts[b] - typeCounts[a]), datasets: [{ data: Object.values(typeCounts).sort((a, b) => b - a), backgroundColor: ['#0d6efd', '#ffc107', '#198754', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#0dcaf0'], borderWidth: 2, borderColor: '#fff' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Tajawal', size: 14 } } } }, cutout: '65%' }
+            });
+
+            if(chartInstStatus) chartInstStatus.destroy();
+            chartInstStatus = new Chart(document.getElementById('statusChart').getContext('2d'), {
+                type: 'pie',
+                data: { labels: Object.keys(statusCounts).sort((a, b) => statusCounts[b] - statusCounts[a]), datasets: [{ data: Object.values(statusCounts).sort((a, b) => b - a), backgroundColor: ['#FFC000', '#198754', '#dc3545', '#0dcaf0', '#6c757d', '#0d6efd'], borderWidth: 2, borderColor: '#fff' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Tajawal', size: 14 } } } } }
+            });
+
+            // 2. الأعمدة (مؤسسات وأطفال)
+            if(chartInstInstitutionsState) chartInstInstitutionsState.destroy();
+            const sortedGroupsForInst = Object.keys(instGroups).sort((a, b) => instGroups[b] - instGroups[a]);
+            chartInstInstitutionsState = new Chart(document.getElementById('institutionsStateChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: sortedGroupsForInst, datasets: [{ label: 'عدد المؤسسات', data: sortedGroupsForInst.map(s => instGroups[s]), backgroundColor: '#0d6efd', borderRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { font: { family: 'Tajawal' }, stepSize: 1 } }, x: { ticks: { font: { family: 'Tajawal' } } } } }
+            });
+
+            if(chartInstChildrenState) chartInstChildrenState.destroy();
+            const sortedGroupsForChildren = Object.keys(childrenGroups).sort((a, b) => childrenGroups[b] - childrenGroups[a]);
+            chartInstChildrenState = new Chart(document.getElementById('childrenStateChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: sortedGroupsForChildren, datasets: [{ label: 'إجمالي الأطفال المرسمين', data: sortedGroupsForChildren.map(s => childrenGroups[s]), backgroundColor: '#0ea5e9', borderRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { font: { family: 'Tajawal' } } }, x: { ticks: { font: { family: 'Tajawal' } } } } }
+            });
+        }
+
+        function getUniqueValues(key) {
+            return [...new Set(globalData.map(item => item[key]).filter(val => val && val.trim() !== ""))].sort();
+        }
+
+        function populateFilters() {
+            const populateSelect = (id, options) => {
+                const select = document.getElementById(id);
+                options.forEach(opt => select.innerHTML += `<option value="${opt}">${opt}</option>`);
+            };
+            if(currentUser && currentUser.role === 'central') populateSelect('stateFilter', getUniqueValues('الولاية'));
+            else {
+                document.getElementById('stateFilter').innerHTML = `<option value="${currentUser.state}">${currentUser.state}</option>`;
+            }
+            populateSelect('delegationFilter', getUniqueValues('المعتمدية'));
+            populateSelect('typeFilter', getUniqueValues('نوع المؤسسة'));
+            populateSelect('statusFilter', getUniqueValues('وضعية المؤسسة'));
+            populateSelect('promoterFilter', getUniqueValues('طبيعة الباعث'));
+        }
+
+        function updateDelegationFilter(selectedState) {
+            const delegationSelect = document.getElementById('delegationFilter');
+            delegationSelect.innerHTML = '<option value="">الكل</option>';
+            let relevantDelegations = (selectedState === "") ? getUniqueValues('المعتمدية') : 
+                [...new Set(globalData.filter(item => item['الولاية'] == selectedState).map(item => item['المعتمدية']).filter(val => val))].sort();
+            relevantDelegations.forEach(opt => delegationSelect.innerHTML += `<option value="${opt}">${opt}</option>`);
+        }
+
+        document.getElementById('stateFilter').addEventListener('change', function() {
+            updateDelegationFilter(this.value);
+            populateInspectorFilter(this.value);
+            applyFilters();
+        });
+
+        function renderCards() {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+            
+            const start = (currentPage - 1) * itemsPerPage;
+            const pageItems = filteredData.slice(start, start + itemsPerPage);
+
+            if (pageItems.length === 0) {
+                container.innerHTML = `<div class="col-12 text-center py-5"><i class="fas fa-search-minus text-muted mb-4" style="font-size: 4rem;"></i><h4 class="text-muted fw-bold">لا توجد مؤسسات تطابق معايير البحث</h4></div>`;
+                return;
+            }
+
+            pageItems.forEach(item => {
+                const name = item['المؤسسة'] || 'بدون اسم'; const state = item['الولاية'] || '-';
+                const delegation = item['المعتمدية'] || '-'; const type = item['نوع المؤسسة'] || 'غير محدد';
+                const status = item['وضعية المؤسسة'] || 'غير محدد'; const phone = item['رقم الهاتف للمؤسسة'] || 'لا يوجد هاتف مدرج';
+                const address = item['عنوان المؤسسة'] || 'لا يوجد عنوان مدرج';
+                const cadre = item['Cadreinspection'] || 'غير مدرج';
+                
+                let coordX = '', coordY = '';
+                Object.keys(item).forEach(key => {
+                    const cleanKey = key.trim().toUpperCase();
+                    if (cleanKey === 'X' || cleanKey.includes(' X') || cleanKey.includes('X ')) coordX = item[key];
+                    if (cleanKey === 'Y' || cleanKey.includes(' Y') || cleanKey.includes('Y ')) coordY = item[key];
+                });
+
+                let mapBtnHTML = '';
+                if (coordX && coordY && String(coordX).trim() !== '' && String(coordY).trim() !== '') {
+                    const cleanX = String(coordX).trim().replace(',', '.');
+                    const cleanY = String(coordY).trim().replace(',', '.');
+                    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${cleanX},${cleanY}`;
+                    mapBtnHTML = `
+                        <div class="mt-3">
+                            <a href="${mapUrl}" target="_blank" class="btn btn-sm w-100 fw-bold shadow-sm btn-map-hover" style="border-radius: 8px; background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;">
+                                <i class="fas fa-map-marked-alt me-2"></i>الموقع الجغرافي (GPS)
+                            </a>
+                        </div>
+                    `;
+                }
+
+                let statusStyle = 'background-color: #6c757d; color: white;';
+                if (status.includes('نقائص')) { statusStyle = 'background-color: #FFC000; color: #333333;'; } 
+                else if (status.includes('نشاط')) { statusStyle = 'background-color: #198754; color: white;'; } 
+                else if (status.includes('معاينة')) { statusStyle = 'background-color: #0dcaf0; color: #212529;'; } 
+                else if (status.includes('غلق') || status.includes('مغلق')) { statusStyle = 'background-color: #dc3545; color: white;'; }
+
+                let visitBadgeHtml = '';
+                if (item._visitStatus === 'recent') {
+                    visitBadgeHtml = `<span class="badge bg-success badge-status mb-1 me-1" style="font-size:0.8rem;"><i class="fas fa-check-circle ms-1"></i>زيارة حديثة: ${item._visitFormatted}</span>`;
+                } else if (item._visitStatus === 'old') {
+                    visitBadgeHtml = `<span class="badge bg-danger badge-status mb-1 me-1" style="font-size:0.8rem;"><i class="fas fa-exclamation-triangle ms-1"></i>تجاوزت سنة: ${item._visitFormatted}</span>`;
+                } else {
+                    visitBadgeHtml = `<span class="badge bg-secondary badge-status mb-1 me-1" style="font-size:0.8rem;"><i class="fas fa-minus-circle ms-1"></i>لا يوجد تاريخ زيارة</span>`;
+                }
+
+                let childrenBadgeHtml = '';
+                if (item._childrenCount > 0) {
+                    let countText = `<span style="font-size: 1.15rem; font-weight: 900; margin: 0 4px;">${item._childrenCount}</span>`;
+                    
+                    if (!item._capacity || item._capacity === 0) {
+                        childrenBadgeHtml = `<span class="badge badge-children badge-no-capacity mb-1 me-1"><i class="fas fa-child ms-1"></i>المرسمون: ${countText} (الطاقة: غير متوفر)</span>`;
+                    } else if (item._isOverCapacity) {
+                        childrenBadgeHtml = `<span class="badge badge-children badge-overcapacity mb-1 me-1"><i class="fas fa-exclamation-circle ms-1"></i>المرسمون: ${countText} (تجاوز الطاقة: ${item._capacity})</span>`;
+                    } else {
+                        childrenBadgeHtml = `<span class="badge badge-children mb-1 me-1"><i class="fas fa-child ms-1"></i>المرسمون: ${countText} / ${item._capacity}</span>`;
+                    }
+                } else {
+                    childrenBadgeHtml = `<span class="badge bg-light text-secondary border badge-status mb-1 me-1"><i class="fas fa-child ms-1"></i>المرسمون: غير متوفر</span>`;
+                }
+
+                container.innerHTML += `
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 institution-card border-0">
+                            <div class="card-body d-flex flex-column bg-white">
+                                <h5 class="card-title"><i class="fas fa-building text-primary ms-2"></i>${name}</h5>
+                                <div class="mb-4 mt-2">
+                                    <span class="badge bg-primary text-white badge-status me-1 mb-1"><i class="fas fa-shapes ms-1"></i>${type}</span>
+                                    <span class="badge badge-status mb-1" style="${statusStyle}"><i class="fas fa-info-circle ms-1"></i>${status}</span>
+                                    <div class="mt-2">${childrenBadgeHtml}</div>
+                                    <div class="mt-1">${visitBadgeHtml}</div>
+                                </div>
+                                <p class="card-text mb-2"><span class="icon-box"><i class="fas fa-map-marker-alt text-danger"></i></span><strong style="color: #000000;">الموقع:</strong> <span style="color: #000000;">${state} - ${delegation}</span></p>
+                                <p class="card-text mb-2" style="font-size: 0.95rem; color: #000000;"><span class="icon-box"><i class="fas fa-map text-success"></i></span>${address}</p>
+                                <p class="card-text mb-3" style="font-size: 0.9rem; color: #555;"><span class="icon-box"><i class="fas fa-clipboard-check text-info"></i></span><strong>إطار التفقد:</strong> ${cadre}</p>
+                                <div class="mt-auto pt-3 border-top border-light">
+                                    <p class="card-text mb-0 fw-bold" style="font-size: 1.05rem; color: #333;"><span class="icon-box"><i class="fas fa-phone-alt text-primary"></i></span><span dir="ltr">${phone}</span></p>
+                                    ${mapBtnHTML}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            const paginationUl = document.getElementById('pagination');
+            paginationUl.innerHTML = '';
+            if(totalPages <= 1) return;
+
+            paginationUl.innerHTML += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link text-primary fw-bold" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">السابق</a></li>`;
+            
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            for (let i = startPage; i <= endPage; i++) {
+                paginationUl.innerHTML += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link fw-bold" href="javascript:void(0)" onclick="changePage(${i})">${i}</a></li>`;
+            }
+            paginationUl.innerHTML += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link text-primary fw-bold" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">التالي</a></li>`;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if(page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderCards();
+            renderPagination();
+        }
+
+        function applyFilters() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const stateVal = document.getElementById('stateFilter').value;
+            const delegationVal = document.getElementById('delegationFilter').value;
+            const typeVal = document.getElementById('typeFilter').value;
+            const statusVal = document.getElementById('statusFilter').value;
+            const promoterVal = document.getElementById('promoterFilter').value;
+            const visitVal = document.getElementById('visitFilter').value;
+            const sizeVal = document.getElementById('sizeFilter').value;
+            const capVal = document.getElementById('capacityFilter').value;
+            const inspVal = document.getElementById('inspectorFilter').value;
+
+            filteredData = globalData.filter(item => {
+                const rowText = Object.values(item).join(' ').toLowerCase();
+                let match = rowText.includes(searchVal) &&
+                       (stateVal === "" || item['الولاية'] == stateVal) &&
+                       (delegationVal === "" || item['المعتمدية'] == delegationVal) &&
+                       (typeVal === "" || item['نوع المؤسسة'] == typeVal) &&
+                       (statusVal === "" || item['وضعية المؤسسة'] == statusVal) &&
+                       (promoterVal === "" || item['طبيعة الباعث'] == promoterVal) &&
+                       (visitVal === "" || item._visitStatus === visitVal) &&
+                       (sizeVal === "" || item._sizeCategory === sizeVal);
+
+                if (inspVal !== "") {
+                    let cadre = item['Cadreinspection'] ? item['Cadreinspection'] : "";
+                    match = match && cadre.includes(inspVal);
+                }
+                       
+                if (capVal === 'over') match = match && item._isOverCapacity;
+                else if (capVal === 'none') match = match && (!item._capacity || item._capacity === 0);
+                else if (capVal === 'normal') match = match && (item._capacity > 0 && !item._isOverCapacity);
+                
+                return match;
+            });
+
+            const sortVal = document.getElementById('sortFilter').value;
+            if (sortVal === 'visit_desc') {
+                filteredData.sort((a, b) => b._visitTimestamp - a._visitTimestamp);
+            } else if (sortVal === 'visit_asc') {
+                filteredData.sort((a, b) => {
+                    if (a._visitTimestamp === 0 && b._visitTimestamp === 0) return 0;
+                    if (a._visitTimestamp === 0) return 1; 
+                    if (b._visitTimestamp === 0) return -1;
+                    return a._visitTimestamp - b._visitTimestamp;
+                });
+            } else if (sortVal === 'children_desc') {
+                filteredData.sort((a, b) => b._childrenCount - a._childrenCount);
+            } else if (sortVal === 'children_asc') {
+                filteredData.sort((a, b) => {
+                    if (a._childrenCount === 0 && b._childrenCount === 0) return 0;
+                    if (a._childrenCount === 0) return 1;
+                    if (b._childrenCount === 0) return -1;
+                    return a._childrenCount - b._childrenCount;
+                });
+            }
+
+            updateItemsPerPage(); 
+            updateResultsCount(); 
+            renderSubStats(); 
+            
+            if (isChartsRendered && document.getElementById('chartsModal').classList.contains('show')) {
+                updateInteractiveCharts(); 
+            }
+            
+            currentPage = 1; 
+            renderCards();
+            renderPagination();
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('delegationFilter').addEventListener('change', applyFilters);
+        document.getElementById('typeFilter').addEventListener('change', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        document.getElementById('promoterFilter').addEventListener('change', applyFilters);
+        document.getElementById('visitFilter').addEventListener('change', applyFilters);
+        document.getElementById('sizeFilter').addEventListener('change', applyFilters);
+        document.getElementById('capacityFilter').addEventListener('change', applyFilters);
+        document.getElementById('inspectorFilter').addEventListener('change', applyFilters);
+
+        // إتاحة الدخول عبر زر Enter
+        document.getElementById('passwordInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') attemptLogin();
+        });
+    </script>
+</body>
+</html>
