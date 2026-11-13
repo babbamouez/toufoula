@@ -126,13 +126,17 @@
     <div id="mainContent" class="d-none">
         
         <div class="header-banner-container">
-            <!-- مسار افتراضي لصورة اللافتة -->
-            <div style="width: 100%; height: 120px; background-color: #0d6efd; display: flex; align-items: center; justify-content: center; color: white;">
-                <h1 class="fw-bold m-0"><i class="fas fa-child me-3"></i>المنظومة الإدارية لمؤسسات الطفولة</h1>
-            </div>
+            <img src="banner_tunisie.jpg" alt="مؤسسات الطفولة بالجمهورية التونسية" class="img-fluid">
         </div>
 
         <div class="container">
+            <!-- مؤشر آخر تحيين -->
+            <div id="lastUpdateContainer" class="text-center mb-4 d-none px-2">
+                <span class="badge shadow-sm px-3 py-2 text-wrap lh-base" style="background-color: #FFC000; color: #333333; font-size: clamp(0.9rem, 3vw, 1.05rem); border-radius: 30px; border: 2px solid #e6ac00; max-width: 100%;">
+                    <i class="fas fa-calendar-check me-2"></i>آخر تحيين للمعطيات: <span id="updateDateValue" class="fw-bold ms-1" style="color: #000;"></span>
+                </span>
+            </div>
+
             <!-- محرك البحث الشامل -->
             <div class="search-engine-box" id="searchSection">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -369,7 +373,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // --- قاعدة بيانات المستخدمين (يمكن فصلها لاحقاً في ملف users.js) ---
+        // --- قاعدة بيانات المستخدمين ---
         const usersDB = {
             "admin": { password: "123", role: "central", state: "الكل", title: "الإدارة المركزية" },
             "sousse": { password: "000", role: "regional", state: "سوسة", title: "المندوبية الجهوية بسوسة" },
@@ -406,7 +410,6 @@
                 document.getElementById('loginSection').classList.add('d-none');
                 document.getElementById('loadingSection').classList.replace('d-none', 'd-flex');
                 
-                // تحديث شارة المستخدم في الواجهة
                 document.getElementById('userBadge').innerHTML = `<i class="fas fa-user-circle me-1"></i> ${currentUser.title}`;
                 
                 fetchExcelData();
@@ -417,9 +420,27 @@
 
         async function fetchExcelData() {
             try {
-                // جلب الملف آلياً من السيرفر
                 const response = await fetch('data.xls'); 
                 if (!response.ok) throw new Error("File not found on server");
+                
+                // محاولة استخراج تاريخ آخر تعديل للملف من السيرفر
+                const lastModifiedHeader = response.headers.get('Last-Modified');
+                if (lastModifiedHeader) {
+                    const dateObj = new Date(lastModifiedHeader);
+                    const formattedDate = dateObj.toLocaleDateString('ar-TN', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const hours = String(dateObj.getHours()).padStart(2, '0');
+                    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                    document.getElementById('updateDateValue').innerText = `${formattedDate} على الساعة: ${hours}:${minutes}`;
+                    document.getElementById('lastUpdateContainer').classList.remove('d-none');
+                } else {
+                    // كبديل إذا لم يرسل السيرفر التاريخ، نستخدم تاريخ اليوم
+                    const dateObj = new Date();
+                    const formattedDate = dateObj.toLocaleDateString('ar-TN', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const hours = String(dateObj.getHours()).padStart(2, '0');
+                    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                    document.getElementById('updateDateValue').innerText = `${formattedDate} (تحيين تقريبي)`;
+                    document.getElementById('lastUpdateContainer').classList.remove('d-none');
+                }
                 
                 const arrayBuffer = await response.arrayBuffer();
                 const data = new Uint8Array(arrayBuffer);
@@ -482,18 +503,15 @@
                 return item;
             });
 
-            // تطبيق قيود الصلاحيات
             if (currentUser.role === 'regional') {
-                // تصفية المعطيات لتقتصر على ولاية المندوب فقط
                 globalData = processed.filter(item => item['الولاية'] === currentUser.state);
             } else {
-                globalData = processed; // للإدارة المركزية
+                globalData = processed; 
             }
 
             filteredData = globalData;
             inspectorData = extractInspectorsAndAssistants(globalData);
             
-            // إظهار الواجهة
             document.getElementById('loadingSection').classList.replace('d-flex', 'd-none');
             document.getElementById('mainContent').classList.remove('d-none');
             
@@ -502,13 +520,10 @@
 
             populateFilters();
             
-            // فرض حالة الفلتر للمندوب الجهوي وتجميدها
             if (currentUser.role === 'regional') {
                 const stateDropdown = document.getElementById('stateFilter');
                 stateDropdown.value = currentUser.state;
                 stateDropdown.disabled = true;
-                
-                // إخفاء قسم "توزيع المؤسسات حسب الولاية" بالأسفل لأنه لم يعد له معنى لولاية واحدة
                 document.getElementById('generalStateSection').classList.add('d-none');
                 
                 updateDelegationFilter(currentUser.state);
@@ -539,7 +554,6 @@
             return null;
         }
 
-        // خوارزمية إطار التفقد والإرشاد البيداغوجي (الصارمة)
         function extractInspectorsAndAssistants(data) {
             let stateFreq = {};
             data.forEach(item => {
@@ -789,7 +803,6 @@
             const container = document.getElementById('subStatsContainer');
             container.innerHTML = '';
 
-            // إذا كانت كل الفلاتر فارغة ومربع البحث فارغ (بالنسبة للمندوب، stateVal ممتلئ دائماً لذا نتأكد من البقية)
             let isAllEmpty = (typeVal === "" && delegationVal === "" && statusVal === "" && promoterVal === "" && inspVal === "" && visitVal === "" && sizeVal === "" && capVal === "" && searchV === "");
             if (currentUser && currentUser.role === 'central' && stateVal === "" && isAllEmpty) {
                 container.classList.add('d-none'); return;
@@ -866,7 +879,7 @@
             });
             statusHTML += `</div>`; htmlContent += statusHTML;
 
-            // 2. الولايات (تظهر للمركزي فقط)
+            // 2. الولايات
             if (stateVal === "" && currentUser && currentUser.role === 'central') {
                 const stateCounts = getCountsIgnoring('الولاية', 'state');
                 let stateTitle = `التوزيع حسب الولاية`;
@@ -888,7 +901,7 @@
             });
             typeHTML += `</div>`; htmlContent += typeHTML;
 
-            // 4. المعتمديات (تظهر إذا تم تحديد ولاية ولم تُحدد معتمدية)
+            // 4. المعتمديات
             if (stateVal !== "" && delegationVal === "") {
                 const delCounts = getCountsIgnoring('المعتمدية', 'delegation');
                 let delTitle = `التوزيع حسب المعتمدية`;
@@ -956,7 +969,7 @@
             });
         }
 
-        // رسم الرسوم البيانية التفاعلية داخل النافذة المنبثقة
+        // رسم الرسوم البيانية التفاعلية داخل النافذة المنبثقة فقط
         function updateInteractiveCharts() {
             if(!isChartsRendered && !document.getElementById('chartsModal').classList.contains('show')) return;
 
@@ -1290,6 +1303,12 @@
         document.getElementById('visitFilter').addEventListener('change', applyFilters);
         document.getElementById('sizeFilter').addEventListener('change', applyFilters);
         document.getElementById('capacityFilter').addEventListener('change', applyFilters);
+        document.getElementById('inspectorFilter').addEventListener('change', applyFilters);
+
+        // إتاحة الدخول عبر زر Enter
+        document.getElementById('passwordInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') attemptLogin();
+        });
     </script>
 </body>
 </html>
