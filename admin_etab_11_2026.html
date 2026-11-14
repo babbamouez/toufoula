@@ -24,10 +24,9 @@
         
         body { font-family: 'Tajawal', 'Segoe UI', Tahoma, sans-serif; background-color: #f0f4f8; color: #333; }
         
-        /* شاشات الدخول والرفع */
-        #loginSection, #uploadSection { background: linear-gradient(135deg, #e9ecef 0%, #d0e2ff 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        /* شاشة الدخول والتصميم المحدث للأيقونات */
+        #loginSection { background: linear-gradient(135deg, #f0f4f8 0%, #d0e2ff 100%); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;}
         
-        /* تحسين تصميم مربع تسجيل الدخول وفق الصورة المرفقة */
         .login-box { 
             width: 100%; 
             max-width: 450px; 
@@ -37,40 +36,44 @@
             background-color: #ffffff;
             padding: 40px;
         }
-        
-        /* التعديل الجذري للحواف وتوجيه الأيقونات لليمين */
+
         .login-box .input-group {
             border: 1px solid #ced4da;
-            border-radius: 10px;
-            overflow: hidden; /* لضمان عدم خروج الأيقونة عن الإطار الدائري */
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: stretch;
+            background-color: #f8f9fa;
         }
-        
+
         .login-box .input-group-text {
             background-color: #f8f9fa;
             border: none;
-            border-left: 1px solid #ced4da; /* الحد الفاصل بين الأيقونة والنص */
+            border-left: 1px solid #ced4da;
             border-radius: 0;
             padding: 0.75rem 1.25rem;
             color: #495057;
         }
-        
+
         .login-box .form-control {
             border: none;
             background-color: #f8f9fa;
             text-align: right;
+            box-shadow: none !important;
         }
-        
+
         .login-box .input-group:focus-within {
             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
             border-color: #0d6efd;
         }
-        
+
         .login-box .input-group:focus-within .form-control,
         .login-box .input-group:focus-within .input-group-text {
             background-color: #ffffff;
         }
-
-        .upload-box { width: 100%; max-width: 600px; border-top: 5px solid #198754; }
+        
+        /* شاشة التحميل */
+        #loadingSection { background: rgba(240, 244, 248, 0.95); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9998; backdrop-filter: blur(5px); }
 
         .header-banner-container { width: 100%; border-bottom: 6px solid #ffc107; margin-bottom: 30px; box-shadow: 0 6px 12px rgba(0,0,0,0.15); background-color: #fff; }
         .header-banner-container img { width: 100%; height: auto; display: block; }
@@ -133,7 +136,7 @@
         .btn-pink:hover { background-color: #b02a6b; border-color: #b02a6b; color: white; box-shadow: 0 4px 10px rgba(214, 51, 132, 0.3); }
         .btn-indigo { background-color: #6610f2; border-color: #6610f2; color: white; transition: all 0.3s ease; }
         .btn-indigo:hover { background-color: #520dc2; border-color: #520dc2; color: white; box-shadow: 0 4px 10px rgba(102, 16, 242, 0.3); }
-        
+
         /* تنسيق الأيقونات العنقودية للخريطة (Marker Clustering) */
         .marker-cluster-small { background-color: rgba(181, 226, 140, 0.6); }
         .marker-cluster-small div { background-color: rgba(110, 204, 57, 0.6); }
@@ -147,7 +150,7 @@
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول المحدثة -->
+    <!-- شاشة تسجيل الدخول المحدثة حسب طلبك -->
     <div id="loginSection">
         <div class="login-box text-center">
             <div class="mb-4">
@@ -157,7 +160,6 @@
             
             <div class="mb-3 text-start">
                 <label class="form-label fw-bold text-secondary ps-2">اسم المستخدم</label>
-                <!-- تعديل الأيقونات لتكون على اليمين مع دمجها بشكل نظيف -->
                 <div class="input-group input-group-lg">
                     <span class="input-group-text"><i class="fas fa-user"></i></span>
                     <input type="text" id="usernameInput" class="form-control" placeholder="Username" dir="ltr">
@@ -179,24 +181,17 @@
         </div>
     </div>
 
-    <!-- قسم الرفع اليدوي (يظهر بعد تسجيل الدخول) -->
-    <div id="uploadSection" class="d-none">
-        <div class="d-flex align-items-center justify-content-center" style="min-height: 100vh;">
-            <div class="bg-white p-5 rounded-4 shadow-lg text-center upload-box">
-                <h4 class="text-primary fw-bold border-bottom pb-3 mb-4" id="welcomeUserMsg"></h4>
-                <i class="fas fa-file-excel text-success mb-4" style="font-size: 5rem;"></i>
-                <h3 class="mb-4 fw-bold text-secondary">الرجاء إدراج ملف المعطيات للبدء</h3>
-                <input type="file" id="excel-file" class="form-control form-control-lg border-success shadow-sm rounded-3" accept=".xlsx, .xls">
-                <small class="text-muted mt-3 d-block fs-6"><i class="fas fa-info-circle me-1"></i> يمكنك إدراج ملف المعطيات الذي تريده</small>
-            </div>
-        </div>
+    <!-- شاشة جلب وتحليل البيانات -->
+    <div id="loadingSection" class="d-none flex-column align-items-center justify-content-center">
+        <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem; border-width: 5px;"></div>
+        <h4 class="mt-4 fw-bold text-primary">جاري جلب المعطيات من السيرفر وتحليلها...</h4>
+        <p class="text-secondary fw-bold" id="loadingStateMsg">يرجى الانتظار</p>
     </div>
 
-    <!-- لوحة القيادة والموقع الرئيسي -->
     <div id="mainContent" class="d-none">
         
         <div class="header-banner-container">
-            <img src="banner_tunisie.jpg" alt="مؤسسات الطفولة بالجمهورية التونسية" class="img-fluid" onerror="this.src='https://via.placeholder.com/1200x150/0d6efd/ffffff?text=%D8%A7%D9%84%D9%85%D9%86%D8%B8%D9%88%D9%85%D8%A9+%D8%A7%D9%84%D8%A5%D8%AF%D8%A7%D8%B1%D9%8A%D8%A9+%D9%84%D9%85%D8%A4%D8%B3%D8%B3%D8%A7%D8%AA+%D8%A7%D9%84%D8%B7%D9%81%D9%88%D9%84%D8%A9'">
+            <img src="banner_tunisie.jpg" alt="مؤسسات الطفولة بالجمهورية التونسية" class="img-fluid">
         </div>
 
         <div class="container">
@@ -294,7 +289,7 @@
             <!-- مربع الإحصائيات الفرعية الذكي -->
             <div id="subStatsContainer" class="d-none mb-4 p-4 bg-white shadow-sm" style="border-radius: 15px; border: 1px solid #e0e0e0; border-right: 5px solid #ffc107;"></div>
 
-            <!-- العداد وأزرار التحكم والتصدير -->
+            <!-- العداد وأزرار التحكم -->
             <div class="mb-4 d-flex flex-wrap justify-content-center align-items-center gap-3">
                 <div class="results-badge text-center" id="resultsCountDisplay"></div>
                 
@@ -309,7 +304,7 @@
                     </select>
                 </div>
 
-                <!-- أزرار التصدير والتقارير الجديدة -->
+                <!-- أزرار التصدير (PDF / Excel) -->
                 <div class="bg-white rounded-pill shadow-sm overflow-hidden d-flex">
                     <button class="btn btn-success fw-bold px-3 py-2 border-0 rounded-0" onclick="exportToExcel()">
                         <i class="fas fa-file-excel me-2"></i>تصدير Excel
@@ -453,7 +448,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // إزالة الاعتماد على الملف الخارجي users.js وتضمين المستخدمين داخلياً لضمان عمل الدالة
+        // --- قاعدة بيانات المستخدمين ---
         const usersDB = {
             "admin": { password: "123", role: "central", state: "الكل", title: "الإدارة المركزية" },
             "sousse": { password: "000", role: "regional", state: "سوسة", title: "المندوبية الجهوية بسوسة" },
@@ -480,7 +475,7 @@
 
         let inspectorData = {}; 
 
-        // --- نظام الدخول ---
+        // --- نظام الدخول وجلب البيانات التلقائي عبر السيرفر ---
         function attemptLogin() {
             const user = document.getElementById('usernameInput').value.trim();
             const pass = document.getElementById('passwordInput').value.trim();
@@ -488,33 +483,41 @@
             if (usersDB[user] && usersDB[user].password === pass) {
                 currentUser = usersDB[user];
                 document.getElementById('loginSection').classList.add('d-none');
+                document.getElementById('loadingSection').classList.replace('d-none', 'd-flex');
                 
-                // إظهار واجهة الرفع اليدوي
-                document.getElementById('uploadSection').classList.remove('d-none');
-                document.getElementById('welcomeUserMsg').innerHTML = `<i class="fas fa-user-check me-2"></i>أهلاً بك، ${currentUser.title}`;
                 document.getElementById('userBadge').innerHTML = `<i class="fas fa-user-circle me-1"></i> ${currentUser.title}`;
+                
+                fetchExcelData();
             } else {
                 document.getElementById('loginError').classList.remove('d-none');
             }
         }
 
-        // --- نظام رفع الملف يدوياً ---
-        document.getElementById('excel-file').addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (file.lastModified) {
-                const dateObj = new Date(file.lastModified);
-                const formattedDate = dateObj.toLocaleDateString('ar-TN', { year: 'numeric', month: 'long', day: 'numeric' });
-                const hours = String(dateObj.getHours()).padStart(2, '0');
-                const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-                document.getElementById('updateDateValue').innerText = `${formattedDate} على الساعة: ${hours}:${minutes}`;
-                document.getElementById('lastUpdateContainer').classList.remove('d-none');
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const data = new Uint8Array(e.target.result);
+        async function fetchExcelData() {
+            try {
+                const response = await fetch('data.xls'); 
+                if (!response.ok) throw new Error("File not found on server");
+                
+                // استخراج تاريخ التعديل إن وجد
+                const lastModifiedHeader = response.headers.get('Last-Modified');
+                if (lastModifiedHeader) {
+                    const dateObj = new Date(lastModifiedHeader);
+                    const formattedDate = dateObj.toLocaleDateString('ar-TN', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const hours = String(dateObj.getHours()).padStart(2, '0');
+                    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                    document.getElementById('updateDateValue').innerText = `${formattedDate} على الساعة: ${hours}:${minutes}`;
+                    document.getElementById('lastUpdateContainer').classList.remove('d-none');
+                } else {
+                    const dateObj = new Date();
+                    const formattedDate = dateObj.toLocaleDateString('ar-TN', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const hours = String(dateObj.getHours()).padStart(2, '0');
+                    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                    document.getElementById('updateDateValue').innerText = `${formattedDate} (تحيين تقريبي)`;
+                    document.getElementById('lastUpdateContainer').classList.remove('d-none');
+                }
+                
+                const arrayBuffer = await response.arrayBuffer();
+                const data = new Uint8Array(arrayBuffer);
                 const workbook = XLSX.read(data, {type: 'array'});
                 
                 let allData = [];
@@ -529,12 +532,20 @@
                     processExtractedData(allData);
                 } else {
                     alert("الملف فارغ أو لا يمكن قراءته.");
+                    resetToLogin();
                 }
-            };
-            reader.readAsArrayBuffer(file);
-        });
+            } catch (error) {
+                console.error(error);
+                alert("خطأ: تعذر جلب ملف data.xls. يرجى التأكد من وجود الملف وتجربة ذلك بعد النشر على السيرفر.");
+                resetToLogin();
+            }
+        }
 
-        // --- معالجة البيانات بعد الرفع ---
+        function resetToLogin() {
+            document.getElementById('loadingSection').classList.replace('d-flex', 'd-none');
+            document.getElementById('loginSection').classList.remove('d-none');
+        }
+
         function processExtractedData(allData) {
             let processed = allData.map(item => {
                 let visitDateKey = Object.keys(item).find(k => k.includes('زيار') || k.includes('تاريخ الزيار') || k.includes('تاريخ آخر'));
@@ -566,7 +577,6 @@
                 return item;
             });
 
-            // تطبيق قيود الصلاحيات المركزية أو الجهوية
             if (currentUser.role === 'regional') {
                 globalData = processed.filter(item => item['الولاية'] === currentUser.state);
             } else {
@@ -576,8 +586,7 @@
             filteredData = globalData;
             inspectorData = extractInspectorsAndAssistants(globalData);
             
-            // إخفاء شاشة الرفع وإظهار لوحة القيادة
-            document.getElementById('uploadSection').classList.add('d-none');
+            document.getElementById('loadingSection').classList.replace('d-flex', 'd-none');
             document.getElementById('mainContent').classList.remove('d-none');
             
             mapModalInstance = new bootstrap.Modal(document.getElementById('mapModal'));
@@ -589,7 +598,6 @@
                 const stateDropdown = document.getElementById('stateFilter');
                 stateDropdown.value = currentUser.state;
                 stateDropdown.disabled = true;
-                
                 document.getElementById('generalStateSection').classList.add('d-none');
                 
                 updateDelegationFilter(currentUser.state);
@@ -620,7 +628,6 @@
             return null;
         }
 
-        // --- خوارزمية إطار التفقد والإرشاد البيداغوجي الصارمة ---
         function extractInspectorsAndAssistants(data) {
             let stateFreq = {};
             data.forEach(item => {
@@ -695,7 +702,7 @@
         }
 
         // ==========================================
-        // دوال تصدير البيانات 
+        // دوال تصدير البيانات (محدثة)
         // ==========================================
         function exportToExcel() {
             if (filteredData.length === 0) {
@@ -838,7 +845,7 @@
                     maxZoom: 19 
                 }).addTo(myMap);
                 
-                // استخدام L.markerClusterGroup بدلاً من L.featureGroup العادي
+                // استخدام المجموعة العنقودية لتجميع آلاف النقاط
                 markersGroup = L.markerClusterGroup({
                     chunkedLoading: true, 
                     maxClusterRadius: 50,
@@ -868,7 +875,7 @@
             markersGroup.clearLayers();
             let hasValidCoords = false;
             
-            // مصفوفة مؤقتة لتخزين النقاط قبل إضافتها للمجموعة العنقودية دفعة واحدة
+            // مصفوفة مؤقتة
             let markersList = [];
 
             filteredData.forEach(item => {
@@ -908,7 +915,7 @@
                 }
             });
 
-            // إضافة كل النقاط إلى المجموعة العنقودية
+            // إضافة كل النقاط العنقودية
             if (markersList.length > 0) {
                 markersGroup.addLayers(markersList);
             }
