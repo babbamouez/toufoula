@@ -4,7 +4,7 @@
 
 const usersDB = {
     "admin": { 
-        password: "123", 
+        password: "wizara123", 
         role: "central", 
         state: "الكل", 
         name: "الإدارة العامة للطفولة" 
