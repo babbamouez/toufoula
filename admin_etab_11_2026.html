@@ -27,7 +27,7 @@
         /* شاشات الدخول والرفع */
         #loginSection, #uploadSection { background: linear-gradient(135deg, #e9ecef 0%, #d0e2ff 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
         
-        /* تحسين تصميم مربع تسجيل الدخول */
+        /* تحسين تصميم مربع تسجيل الدخول وفق الصورة المرفقة */
         .login-box { 
             width: 100%; 
             max-width: 450px; 
@@ -38,29 +38,36 @@
             padding: 40px;
         }
         
+        /* التعديل الجذري للحواف وتوجيه الأيقونات لليمين */
+        .login-box .input-group {
+            border: 1px solid #ced4da;
+            border-radius: 10px;
+            overflow: hidden; /* لضمان عدم خروج الأيقونة عن الإطار الدائري */
+        }
+        
         .login-box .input-group-text {
             background-color: #f8f9fa;
-            border: 1px solid #ced4da;
-            border-left: none; /* إزالة الحد الأيسر لدمجه مع حقل الإدخال */
+            border: none;
+            border-left: 1px solid #ced4da; /* الحد الفاصل بين الأيقونة والنص */
+            border-radius: 0;
+            padding: 0.75rem 1.25rem;
+            color: #495057;
         }
         
         .login-box .form-control {
-            border: 1px solid #ced4da;
-            border-right: none; /* إزالة الحد الأيمن لدمجه مع الأيقونة */
+            border: none;
             background-color: #f8f9fa;
+            text-align: right;
         }
         
-        .login-box .form-control:focus {
-            box-shadow: none;
+        .login-box .input-group:focus-within {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
             border-color: #0d6efd;
-            background-color: #ffffff;
         }
         
-        /* التأكد من أن الأيقونة تتأثر بالتركيز (focus) أيضاً */
-        .login-box .form-control:focus + .input-group-text,
-        .login-box .input-group-text:has(+ .form-control:focus) { /* استخدام :has للمتصفحات الحديثة، أو يمكن تجاهله إذا كان التنسيق كافياً */
-             border-color: #0d6efd;
-             background-color: #ffffff;
+        .login-box .input-group:focus-within .form-control,
+        .login-box .input-group:focus-within .input-group-text {
+            background-color: #ffffff;
         }
 
         .upload-box { width: 100%; max-width: 600px; border-top: 5px solid #198754; }
@@ -149,18 +156,19 @@
             <h4 class="fw-bold mb-4 text-primary" style="font-size: 1.5rem;">بوابة الإدارة المركزية والجهوية</h4>
             
             <div class="mb-3 text-start">
-                <label class="form-label fw-bold text-secondary">اسم المستخدم</label>
+                <label class="form-label fw-bold text-secondary ps-2">اسم المستخدم</label>
+                <!-- تعديل الأيقونات لتكون على اليمين مع دمجها بشكل نظيف -->
                 <div class="input-group input-group-lg">
-                    <input type="text" id="usernameInput" class="form-control" placeholder="Username" dir="ltr" style="text-align: right;">
                     <span class="input-group-text"><i class="fas fa-user"></i></span>
+                    <input type="text" id="usernameInput" class="form-control" placeholder="Username" dir="ltr">
                 </div>
             </div>
             
             <div class="mb-4 text-start">
-                <label class="form-label fw-bold text-secondary">كلمة العبور</label>
+                <label class="form-label fw-bold text-secondary ps-2">كلمة العبور</label>
                 <div class="input-group input-group-lg">
-                    <input type="password" id="passwordInput" class="form-control" placeholder="Password" dir="ltr" style="text-align: right;">
                     <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                    <input type="password" id="passwordInput" class="form-control" placeholder="Password" dir="ltr">
                 </div>
             </div>
             
@@ -179,7 +187,7 @@
                 <i class="fas fa-file-excel text-success mb-4" style="font-size: 5rem;"></i>
                 <h3 class="mb-4 fw-bold text-secondary">الرجاء إدراج ملف المعطيات للبدء</h3>
                 <input type="file" id="excel-file" class="form-control form-control-lg border-success shadow-sm rounded-3" accept=".xlsx, .xls">
-                <small class="text-muted mt-3 d-block fs-6"><i class="fas fa-info-circle me-1"></i> يمكنك إدراج ملف data2.xls أو أي ملف معطيات آخر</small>
+                <small class="text-muted mt-3 d-block fs-6"><i class="fas fa-info-circle me-1"></i> يمكنك إدراج ملف المعطيات الذي تريده</small>
             </div>
         </div>
     </div>
@@ -445,7 +453,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // --- قاعدة بيانات المستخدمين ---
+        // إزالة الاعتماد على الملف الخارجي users.js وتضمين المستخدمين داخلياً لضمان عمل الدالة
         const usersDB = {
             "admin": { password: "123", role: "central", state: "الكل", title: "الإدارة المركزية" },
             "sousse": { password: "000", role: "regional", state: "سوسة", title: "المندوبية الجهوية بسوسة" },
