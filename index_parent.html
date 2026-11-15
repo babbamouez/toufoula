@@ -191,9 +191,9 @@
         
         let chartInstType = null;
 
-        // جلب البيانات آلياً من ملف data.xlsx
+        // جلب البيانات آلياً من ملف data.xls
         window.addEventListener('DOMContentLoaded', () => {
-            fetch('data.xlsx')
+            fetch('data.xls')
                 .then(response => {
                     if (!response.ok) throw new Error("الملف غير موجود");
                     
@@ -241,7 +241,7 @@
                 .catch(error => {
                     console.error("خطأ:", error);
                     const errDiv = document.getElementById('loadingError');
-                    errDiv.innerHTML = '<i class="fas fa-exclamation-triangle fs-4 d-block mb-2"></i>تعذر تحميل ملف <strong>data.xlsx</strong>. <br><small>ملاحظة: هذا الخطأ يظهر عند فتح الملف من حاسوبك مباشرة. سيعمل بنجاح فور رفعه على الإنترنت.</small>';
+                    errDiv.innerHTML = '<i class="fas fa-exclamation-triangle fs-4 d-block mb-2"></i>تعذر تحميل ملف <strong>data.xls</strong>. <br><small>ملاحظة: هذا الخطأ يظهر عند فتح الملف من حاسوبك مباشرة. سيعمل بنجاح فور رفعه على الإنترنت.</small>';
                     errDiv.classList.remove('d-none');
                 });
         });
